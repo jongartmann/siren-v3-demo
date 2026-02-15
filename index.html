@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIREN — Signature Intelligence for Robotic Energy Networks · X-Loop³ Labs</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+:root{--bg:#f4f6f8;--s:#fff;--s2:#f0f2f5;--bd:#e2e6ec;--g:#0a6847;--gm:#12b76a;--gb:#34d399;--am:#d97706;--rd:#dc2626;--bl:#2563eb;--tx:#1a1f2e;--td:#64748b;--tm:#94a3b8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;overflow-x:hidden}
+.abg{position:fixed;top:-200px;right:-200px;width:600px;height:600px;background:radial-gradient(circle,#0a684710,transparent 70%);border-radius:50%;pointer-events:none;animation:af 15s ease-in-out infinite}
+.abg2{position:fixed;bottom:-200px;left:-100px;width:500px;height:500px;background:radial-gradient(circle,#2563eb08,transparent 70%);border-radius:50%;pointer-events:none;animation:af 20s ease-in-out infinite reverse}
+@keyframes af{0%,100%{transform:translate(0,0)}50%{transform:translate(30px,30px)}}
+.hdr{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:10px 24px;background:rgba(255,255,255,.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--bd)}
+.hdr-l{display:flex;align-items:center;gap:14px}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:var(--g);letter-spacing:1.5px}
+.logo span{color:var(--tm);font-weight:500}
+.hdiv{width:1px;height:18px;background:#d0d6de}
+.htitle{font-size:15px;font-weight:600}
+.hdr-r{display:flex;align-items:center;gap:12px}
+.live-b{display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:#0a684712;font-size:10px;font-weight:600;color:var(--g);font-family:'JetBrains Mono',monospace}
+.ldot{width:6px;height:6px;border-radius:50%;background:var(--gm);animation:lp 2s infinite}
+@keyframes lp{0%,100%{box-shadow:0 0 0 0 #12b76a60}50%{box-shadow:0 0 0 5px #12b76a00}}
+.dom-sel{display:flex;border-radius:10px;overflow:hidden;border:2px solid var(--bd);box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.dom-btn{padding:8px 14px;cursor:pointer;font-size:10px;font-weight:600;transition:all .3s;background:var(--s);color:var(--td);border:none;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.dom-btn.act{background:var(--g);color:white}
+.dom-btn:hover:not(.act){background:var(--s2)}
+.tabs{display:flex;background:var(--s);border-bottom:1px solid var(--bd);padding:0 24px;position:sticky;top:45px;z-index:49}
+.tab{padding:10px 18px;font-size:11px;font-weight:600;color:var(--td);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+.tab:hover{color:var(--tx)}.tab.act{color:var(--g);border-bottom-color:var(--g)}
+.vw{display:none;position:relative;z-index:1}.vw.show{display:block}
+.crd{background:var(--s);border-radius:14px;border:1px solid var(--bd);padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+.ct{font-size:9px;text-transform:uppercase;letter-spacing:2.5px;color:var(--tm);font-weight:600;margin-bottom:10px}
+.mono{font-family:'JetBrains Mono',monospace}
+.g0{display:grid;grid-template-columns:260px 1fr 260px;gap:12px;padding:12px 20px 90px}
+.sav-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}
+.sav{background:linear-gradient(135deg,#0a684706,var(--s));border:1px solid #0a684718;border-radius:12px;padding:12px;text-align:center}
+.sav-v{font-size:26px;font-weight:800;font-family:'Syne',sans-serif;color:var(--g)}
+.sav-l{font-size:9px;color:var(--td);margin-top:2px}
+.sav-s{font-size:7px;color:var(--tm);font-family:'JetBrains Mono',monospace;margin-top:4px}
+.cc{background:var(--s);border-radius:11px;border:1px solid var(--bd);padding:10px;transition:all .4s;position:relative;overflow:hidden;margin-bottom:7px;cursor:pointer}
+.cc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.cc.ok::before{background:var(--gm)}.cc.warn::before{background:var(--am)}.cc.danger::before{background:var(--rd)}
+.cc.ok{border-color:#0a684720}.cc.warn{border-color:#d9770620}.cc.danger{border-color:#dc262620}
+.cc.sel{box-shadow:0 0 0 2px var(--g);transform:scale(1.02)}
+.wave-wrap{background:#0a0e14;border-radius:12px;border:1px solid #1a2030;padding:10px;position:relative;overflow:hidden}
+.srow{display:flex;gap:8px;margin-bottom:8px}
+.sc{flex:1;background:var(--s);border-radius:10px;border:1px solid var(--bd);padding:8px 10px;text-align:center;position:relative;overflow:hidden}
+.sc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;border-radius:0 0 10px 10px}
+.sc-g::after{background:var(--g)}.sc-b::after{background:var(--bl)}
+.sv{font-size:22px;font-weight:800;font-family:'Syne',sans-serif;line-height:1}.sv-g{color:var(--g)}.sv-b{color:var(--bl)}
+.su{font-size:7px;color:var(--tm);margin-top:1px}.slb{font-size:6px;text-transform:uppercase;letter-spacing:1px;color:var(--tm);margin-top:1px;font-weight:600}
+.ae{padding:5px 6px;margin-bottom:2px;background:var(--s2);border-radius:4px;border-left:2px solid var(--bd);font-size:8px;animation:asl .4s}
+@keyframes asl{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+.ae-g{border-left-color:var(--gm)}.ae-a{border-left-color:var(--am)}.ae-r{border-left-color:var(--rd)}.ae-b{border-left-color:var(--bl)}
+.ats{font-family:'JetBrains Mono',monospace;color:var(--tm);font-size:6px}.aev{font-weight:600;margin-top:1px}
+.g1{padding:12px 20px 90px;display:flex;flex-direction:column;gap:12px}
+.sc-card{background:var(--s);border-radius:14px;border:1px solid var(--bd);padding:16px;margin-bottom:4px}
+.sc-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.sc-emoji{font-size:28px}.sc-title{font-size:14px;font-weight:700}.sc-sub{font-size:10px;color:var(--td);margin-top:2px}
+.sc-timeline{display:grid;grid-template-columns:70px 1fr;gap:6px 10px;font-size:10px;line-height:1.5;color:var(--td)}
+.sc-insight{margin-top:12px;padding:10px 14px;border-radius:10px;font-size:10px;line-height:1.5}
+.sc-insight.green{background:#0a684708;border:1px solid #0a684718;color:var(--td)}
+.g2{padding:12px 20px 90px;display:flex;flex-direction:column;gap:12px}
+.ew-card{background:var(--s);border-radius:12px;border:1px solid var(--bd);padding:12px;display:grid;grid-template-columns:40px 1fr 100px 120px;align-items:center;gap:10px;margin-bottom:6px}
+.ew-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.ew-ok{background:#0a684710}.ew-warn{background:#d9770612}.ew-crit{background:#dc262610}
+.g3{padding:12px 20px 90px;display:flex;flex-direction:column;gap:12px}
+.biz-input{display:flex;align-items:center;gap:6px;font-size:10px}
+.biz-input input{width:60px;padding:4px 8px;background:var(--s);border:1.5px solid var(--bd);border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:12px;outline:none}
+.g4{padding:12px 20px 90px;display:flex;flex-direction:column;gap:12px}
+.fleet-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.fs{background:var(--s);border-radius:12px;border:1px solid var(--bd);padding:14px;text-align:center}
+.fs-v{font-size:28px;font-weight:800;font-family:'Syne',sans-serif}.fs-l{font-size:9px;color:var(--td);margin-top:2px}
+.ticket{background:var(--s);border-radius:12px;border:1px solid var(--bd);padding:12px;display:grid;grid-template-columns:44px 1fr 130px 80px 100px;align-items:center;gap:10px;transition:all .3s;margin-bottom:6px}
+.ticket.t-crit{border-left:3px solid var(--rd)}.ticket.t-warn{border-left:3px solid var(--am)}.ticket.t-plan{border-left:3px solid var(--bl)}
+.t-prio{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;font-family:'Syne',sans-serif;color:white}
+.t-p1{background:var(--rd)}.t-p2{background:var(--am)}.t-p3{background:var(--bl)}
+.t-farm{font-weight:700;font-size:11px}.t-loc{font-size:8px;color:var(--tm);font-family:'JetBrains Mono',monospace;margin-top:1px}
+.t-issue{font-size:9px;color:var(--td);margin-top:2px;line-height:1.3}
+.t-comp{font-size:9px;color:var(--td)}.t-mach{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--tm);margin-top:1px}
+.t-tech{font-size:9px;text-align:center}.t-action{text-align:right;font-size:9px}
+.t-btn{padding:4px 8px;border-radius:6px;border:1px solid var(--bd);background:var(--s2);font-size:8px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.dbar-w{position:fixed;bottom:0;left:0;right:0;z-index:100;padding:0 20px 10px;background:linear-gradient(180deg,transparent,var(--bg) 40%);pointer-events:none}
+.dbar{pointer-events:all;display:flex;gap:4px;justify-content:center;align-items:center;flex-wrap:wrap;background:rgba(255,255,255,.9);backdrop-filter:blur(20px);border:1px solid var(--bd);border-radius:16px;padding:6px 12px;max-width:900px;margin:0 auto;box-shadow:0 4px 20px rgba(0,0,0,.06)}
+.db{padding:5px 11px;border-radius:8px;border:1.5px solid var(--bd);background:var(--s);color:var(--tx);font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+.db:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.db-g{border-color:#0a684720;color:var(--g)}.db-a{border-color:#d9770620;color:var(--am)}.db-r{border-color:#dc262620;color:var(--rd)}
+.dtag{font-size:6px;color:var(--tm);font-family:'JetBrains Mono',monospace;letter-spacing:1px;padding:0 4px}
+@media(max-width:1100px){.g0{grid-template-columns:1fr}.fleet-stats{grid-template-columns:1fr 1fr}.ticket{grid-template-columns:1fr}.dom-sel{flex-wrap:wrap}.sav-row{grid-template-columns:1fr 1fr}.ew-card{grid-template-columns:1fr}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+@keyframes chainSlide{from{opacity:0;transform:translateY(-8px);max-height:0}to{opacity:1;transform:translateY(0);max-height:80px}}
+.chain-entry{animation:chainSlide 0.4s ease-out;border-left:2px solid var(--g);padding:4px 6px;margin-bottom:3px;background:var(--s2);border-radius:0 4px 4px 0;font-size:7px;line-height:1.4}
+.chain-entry.warn{border-left-color:var(--am)}.chain-entry.crit{border-left-color:var(--rd)}
+.chain-hash{color:var(--g);letter-spacing:0.5px;font-size:6px;opacity:0.7;word-break:break-all;transition:opacity 0.3s}
+.chain-entry:first-child .chain-hash{opacity:1;font-size:7px}
+</style>
+</head>
+<body>
+<div class="abg"></div><div class="abg2"></div>
+<div class="hdr">
+  <div class="hdr-l"><div class="logo">X-LOOP³ <span>LABS</span></div><div class="hdiv"></div><div class="htitle">SIREN — Signature Intelligence</div></div>
+  <div class="hdr-r">
+    <div class="dom-sel" id="domSel"></div>
+    <div class="dom-sel" id="oemToggle" style="border-color:#0a684730"></div>
+    <div class="live-b"><div class="ldot"></div>LIVE</div>
+    <div class="mono" style="font-size:11px;color:var(--td)" id="clk">--:--:--</div>
+  </div>
+</div>
+<div class="tabs" id="tabBar"></div>
+<div class="vw show" id="v0"></div>
+<div class="vw" id="v1"></div>
+<div class="vw" id="v2"></div>
+<div class="vw" id="v3"></div>
+<div class="vw" id="v4"></div>
+<div class="dbar-w"><div class="dbar">
+  <button class="db db-g" onclick="demoHealthy()">✅ Healthy</button>
+  <button class="db db-a" onclick="demoDrift()">⚠️ Drift</button>
+  <button class="db db-r" onclick="demoFault()">🔴 Fault</button>
+  <button class="db" onclick="demoReset()">↺ Reset</button>
+  <span class="dtag">PATENT PENDING · 63/983,192 · ALL ABOUT AUTOMATION 2026</span>
+</div></div>
+<script>
+// ========================================================================
+// SIREN V3 — DOMAIN DATA (REAL SPECS)
+// ========================================================================
+const DOMAINS={
+industrial:{id:'industrial',emoji:'🏭',short:'Industrie',name:'Industriefertigung',
+oems:{
+  dmg:{id:'dmg',label:'DMG MORI',model:'DMU 50 3rd Gen',fleet:170000,fleetLabel:'5-Achs-BAZ installiert',
+    depot:{name:'DMG MORI Seebach',loc:'Seebach TH',lat:50.82,lng:10.60},
+    sub:'FANUC · Mazak · Hermle',
+    strat1:'170\'000 DMU-Serie weltweit. SIREN als Sinumerik-Feature: Predictive ohne Sensor-Nachrüstung.',
+    strat2:'Reduziert ungeplante Stillstände um bis zu 85%. Predictive Maintenance direkt ab Stromeingang.'},
+  fanuc:{id:'fanuc',label:'FANUC',model:'ROBODRILL α-DiB5',fleet:400000,fleetLabel:'ROBODRILL installiert',
+    depot:{name:'FANUC Europe',loc:'Echternach LU',lat:49.81,lng:6.42},
+    sub:'DMG MORI · Mazak · Okuma',
+    strat1:'400\'000 ROBODRILL weltweit. SIREN überwacht Alpha i-D Servos direkt am Stromeingang.',
+    strat2:'Überwacht Spindel + Servos ohne Nachrüstung. Sofort einsatzbereit bei 400.000 Maschinen.'}
+},currentOEM:'dmg',
+components:[
+{name:'Spindel speedMASTER',kw:35,status:'ok',drift:1.2,icon:'⚙️',wBase:35000,wAmp:3000,wFreq:0.8,desc:'SK40/HSK-A63 · 20.000 U/min'},
+{name:'Servo X (Alpha i-D)',kw:1.8,status:'ok',drift:0.8,icon:'↔️',wBase:1800,wAmp:200,wFreq:2.1,desc:'Kugelgewindespindel 40mm'},
+{name:'Servo Y (Alpha i-D)',kw:1.8,status:'warn',drift:12.4,icon:'↕️',wBase:1800,wAmp:220,wFreq:1.8,desc:'Führungsbahn-Verschleiss'},
+{name:'Servo Z',kw:2.2,status:'ok',drift:0.5,icon:'↗️',wBase:2200,wAmp:180,wFreq:2.4,desc:'Gegengewicht + Servo'},
+{name:'Kühlmittelpumpe',kw:2.8,status:'ok',drift:2.1,icon:'💧',wBase:2800,wAmp:150,wFreq:3.2,desc:'Hochdruck 40 bar TSC'},
+{name:'Hydraulikaggregat',kw:7.5,status:'danger',drift:24.7,icon:'🔴',wBase:7500,wAmp:500,wFreq:0.9,desc:'Werkzeugklemme + Palettenwechsler'}],
+context:[{l:'Spindelstunden',v:'14\'892 h',s:'ok'},{l:'Werkzeugplätze',v:'60/60 belegt',s:'ok'},{l:'Kühlmittel',v:'38°C / 40 bar',s:'ok'},{l:'Gesamtleistung',v:'32 kVA',s:'ok'}],
+weather:{now:{temp:24,hum:58,cond:'Bewölkt',icon:'⛅'},forecast:[{day:'Mo',temp:26,icon:'☀️',risk:0},{day:'Di',temp:29,icon:'🌤️',risk:0},{day:'Mi',temp:34,icon:'🔥',risk:1},{day:'Do',temp:36,icon:'🔥',risk:2},{day:'Fr',temp:31,icon:'⛈️',risk:1}],riskNote:'Mi–Do Hitzewelle: Kühlsystem +18% Last. Servo-Drift + Hitze = Risiko-Multiplikator ×2.4'},
+pq:{freq:50.01,thd:2.8,voltage:398,status:'ok',note:'Netzqualität stabil. THD < 5% Grenzwert.'},
+envHistory:[
+{m:'Jan',t:4,h:78,pat:null,learns:0},
+{m:'Feb',t:3,h:82,pat:null,learns:1},
+{m:'Mär',t:8,h:70,pat:'Kühlmittel-Baseline angepasst',learns:2},
+{m:'Apr',t:14,h:62,pat:null,learns:3},
+{m:'Mai',t:19,h:55,pat:'Spindel-Thermik: Sommer-Profil aktiviert',learns:5},
+{m:'Jun',t:24,h:50,pat:'⚠️ Servo-Drift korreliert mit >22°C',learns:8},
+{m:'Jul',t:28,h:48,pat:'Hydraulik-Viskosität: Hitze-Kompensation gelernt',learns:12},
+{m:'Aug',t:30,h:45,pat:'🔥 3 Ausfälle verhindert durch Hitze-Prädikion',learns:16},
+{m:'Sep',t:22,h:58,pat:null,learns:18},
+{m:'Okt',t:14,h:68,pat:'Herbst-Transition: Baseline-Reset erkannt',learns:20},
+{m:'Nov',t:7,h:75,pat:'Kaltstart-Muster: Anlaufstrom +15% normal',learns:23},
+{m:'Dez',t:2,h:80,pat:'❄️ Frost-Profil: Schmiermittel-Kompensation',learns:26}],
+tickets:[
+{firm:'Dreyer GmbH',loc:'Konstanz BW',lat:47.66,lng:9.18,issue:'Hydraulik O-Ring +24.7% — DMU 50',prio:1,comp:'Hydraulik',mach:'DMU 50 3rd Gen · SN: DMU-2023-4471',tech:'Marco W.',when:'morgen 09:00',sav:7500},
+{firm:'Müller Metalltechnik',loc:'Friedrichshafen BW',lat:47.65,lng:9.48,issue:'Servo Y Führungsbahn +12.4%',prio:1,comp:'Servo Y',mach:'DMU 50 · SN: DMU-2024-1182',tech:'Marco W.',when:'morgen 11:30',sav:4200},
+{firm:'Amann Präzision',loc:'Ravensburg BW',lat:47.78,lng:9.61,issue:'Spindel Lager +6% bei >12k RPM',prio:2,comp:'Spindel',mach:'DMU 50 eVo · SN: DMU-2019-0891',tech:'Sara K.',when:'Donnerstag',sav:2200},
+{firm:'Bodensee CNC',loc:'Lindau BY',lat:47.55,lng:9.68,issue:'Kühlmittelpumpe +5%',prio:3,comp:'Kühlmittel',mach:'DMU 50 ecoline · SN: ECO-2014-3321',tech:'—',when:'Überwachung',sav:0}],
+scenarios:[
+{emoji:'🔧',title:'Freitag 22:30 — Servo Y driftet an DMU 50',sub:'HEARTBEAT → WARNING → ESCALATION · Spindelstunden: 14.892',
+timeline:[
+{time:'Mo–Do',tier:'heartbeat',text:'🟢 <strong>HEARTBEAT:</strong> Servo Y Alpha i-D: 1.8 kW nominal. <span class="mono" style="color:var(--gm)">drift: +1.2%</span>'},
+{time:'Fr 14:00',tier:'info',text:'Servo Y +8.2% bei Finishing-Zyklen (Z-Kompensation aktiv). SIREN: Stufe 1→2.'},
+{time:'→ SIREN',tier:'warning',text:'🟡 <strong style="color:var(--am)">WARNING:</strong> Führungsbahn-Verschleiss (87%). Ticket → Betriebsleiter.'},
+{time:'Fr 22:30',tier:'info',text:'Drift +12.4%, kontextbereinigt +14.1%. RUL: 4 Tage bei aktueller Zyklenrate.'},
+{time:'→ SIREN',tier:'escalation',text:'🔴 <strong style="color:var(--rd)">ESCALATION:</strong> RUL < 72h. P1-Ticket + Teilliste an Serviceleiter.'},
+{time:'Sa 06:00',tier:'resolved',text:'✅ Techniker schmiert Führungsbahn. 25 Min. Drift → +1.8%. DMU 50 läuft.'}],
+insight:{type:'green',text:'<strong>Ohne SIREN:</strong> Montag Servo blockiert. 8h Stillstand × EUR 150/h CNC-Stundensatz + Notfall. <strong style="color:var(--g)">Mit SIREN: 25 Min, EUR 45.</strong>'}},
+{emoji:'🧠',title:'SIREN lernt: O-Ring-Muster nach 14 Monaten',sub:'Failure Library wächst — Uptime-Vorteil für DMG MORI',
+timeline:[
+{time:'03/24',tier:'info',text:'DMU-4471 Hydraulik +11%. Techniker: defekter O-Ring im Palettenwechsler.'},
+{time:'06/24',tier:'info',text:'DMU-1182 gleiches Muster. Korrelation 91%. SIREN: "O-Ring, siehe #4471-0301".'},
+{time:'→',tier:'learning',text:'📚 <strong style="color:var(--bl)">LERNEFFEKT:</strong> HYDRAULIC_ORING_DEGRADATION als Pattern gespeichert.'},
+{time:'01/25',tier:'warning',text:'🟡 DMU-0891 nur +3%. SIREN matched bei +3% statt +11%. Konfidenz: 83%→96%.'},
+{time:'→',tier:'resolved',text:'✅ O-Ring getauscht, EUR 12. Kein Stillstand.'}],
+insight:{type:'green',text:'<strong style="color:var(--g)">Nach 2 Jahren kennt SIREN jede DMU 50 besser als jeder Techniker. Wer wechselt, verliert alles.</strong>'}}],
+perMachine:{downtime:4800,emergency:1900,folge:1200,label:'5-Achs-BAZ'},licPerYear:480,hwPerMach:180},
+
+humanoid:{id:'humanoid',emoji:'🤖',short:'Humanoid',name:'Humanoide Robotik',
+oems:{
+  figure:{id:'figure',label:'Figure AI',model:'Figure 02',fleet:5000,fleetLabel:'Units deployed (2026)',
+    depot:{name:'Figure AI HQ',loc:'Sunnyvale CA',lat:37.37,lng:-122.04},
+    sub:'Tesla Optimus · Unitree · Apptronik',
+    strat1:'Figure 02: 2.25 kWh Batterie, 5h Runtime, Custom-Aktuatoren. SIREN überwacht jeden Joint.',
+    strat2:'Erkennt Aktuator-Verschleiss in Echtzeit. Verlängert Einsatzzyklen um 40%+ pro Roboter.'},
+  tesla:{id:'tesla',label:'Tesla',model:'Optimus Gen 2',fleet:1000,fleetLabel:'Prototypen in Tesla-Werken',
+    depot:{name:'Tesla Gigafactory',loc:'Austin TX',lat:30.22,lng:-97.62},
+    sub:'Figure AI · Boston Dynamics · Unitree',
+    strat1:'Optimus Gen 2: 2.3 kWh, 22+ DoF, Custom-Aktuatoren. SIREN im Giga-Maßstab.',
+    strat2:'Skaliert auf Tausende Einheiten. Erkennt Muster über die gesamte Flotte.'}
+},currentOEM:'figure',
+components:[
+{name:'Hip Actuator L',kw:0.45,status:'ok',drift:1.5,icon:'🦿',wBase:450,wAmp:60,wFreq:2.8,desc:'Custom Planetary · 450Nm peak'},
+{name:'Hip Actuator R',kw:0.45,status:'ok',drift:1.3,icon:'🦿',wBase:450,wAmp:55,wFreq:2.9,desc:'Symmetric L/R · Ball Bearings'},
+{name:'Knee Joint L',kw:0.35,status:'warn',drift:9.2,icon:'🔧',wBase:350,wAmp:45,wFreq:3.5,desc:'High-cycle · Gait Load'},
+{name:'Gripper Assembly',kw:0.15,status:'ok',drift:2.0,icon:'✋',wBase:150,wAmp:20,wFreq:4.2,desc:'16 DoF · 25 kg Payload'},
+{name:'Torso Gyro/IMU',kw:0.08,status:'ok',drift:0.5,icon:'🎯',wBase:80,wAmp:10,wFreq:6.0,desc:'Balance Control · 200 Hz'},
+{name:'Battery BMS',kw:2.25,status:'danger',drift:18.3,icon:'🔋',wBase:2250,wAmp:300,wFreq:1.1,desc:'2.25 kWh Li-ion · 1.5h Charge'}],
+context:[{l:'Gait Cycles',v:'8\'421',s:'ok'},{l:'Battery SoC',v:'67%',s:'ok'},{l:'Balance Score',v:'0.94',s:'ok'},{l:'Runtime',v:'3.4h / 5h',s:'ok'}],
+weather:{now:{temp:22,hum:45,cond:'Halle 3: klimatisiert',icon:'🏭'},forecast:[{day:'Mo',temp:22,icon:'🏭',risk:0},{day:'Di',temp:22,icon:'🏭',risk:0},{day:'Mi',temp:28,icon:'⚠️',risk:1},{day:'Do',temp:22,icon:'🏭',risk:0},{day:'Fr',temp:22,icon:'🏭',risk:0}],riskNote:'Mi: Klimaanlage Wartung → Hallentemp. steigt → Aktuator-Effizienz sinkt −8%. Knee-Drift beobachten.'},
+pq:{freq:50.00,thd:1.9,voltage:400,status:'ok',note:'Werksversorgung stabil. USV-gepuffert.'},
+envHistory:[
+{m:'Jan',t:18,h:40,pat:null,learns:0},
+{m:'Feb',t:18,h:42,pat:'Gait-Baseline: Hallentemp stabil',learns:1},
+{m:'Mär',t:19,h:45,pat:null,learns:2},
+{m:'Apr',t:20,h:48,pat:'Torbereich: +3°C Gradient erkannt',learns:4},
+{m:'Mai',t:22,h:50,pat:'Aktuator-Effizienz sinkt >24°C Halle',learns:6},
+{m:'Jun',t:26,h:55,pat:'⚠️ Knee-Joint: Hitze-Korrelation bestätigt',learns:9},
+{m:'Jul',t:29,h:58,pat:'🔥 2× Überhitzungs-Shutdown verhindert',learns:13},
+{m:'Aug',t:30,h:60,pat:'Batterie-Degradation beschleunigt >28°C',learns:17},
+{m:'Sep',t:24,h:52,pat:null,learns:19},
+{m:'Okt',t:21,h:45,pat:'Schichtwechsel-Muster gelernt',learns:21},
+{m:'Nov',t:19,h:42,pat:null,learns:22},
+{m:'Dez',t:18,h:40,pat:'Jahresprofil komplett. 17 Muster.',learns:24}],
+tickets:[
+{firm:'BMW Dingolfing',loc:'Dingolfing BY',lat:48.64,lng:12.51,issue:'BMS Cell-Imbalance +18.3%',prio:1,comp:'Battery',mach:'Figure 02 · SN: FIG2-2025-0847',tech:'Alex M.',when:'morgen',sav:12000},
+{firm:'Mercedes Rastatt',loc:'Rastatt BW',lat:48.86,lng:8.20,issue:'Knee L Planetary +9.2%',prio:2,comp:'Knee',mach:'Figure 02 · SN: FIG2-2026-1192',tech:'Alex M.',when:'Mittwoch',sav:4500}],
+scenarios:[
+{emoji:'🦿',title:'Knee Actuator — Sturzrisiko bei BMW vermieden',sub:'Energy Signature erkennt Planetengetriebe-Verschleiss im Figure 02',
+timeline:[
+{time:'Tag 1–14',tier:'heartbeat',text:'🟢 Knee Joint L: 0.35 kW. 8.421 Gait Cycles normal.'},
+{time:'Tag 15',tier:'info',text:'+4.2%. SIREN: DRIFT_INVESTIGATION. Stufe 2 analysiert Peak-Ströme.'},
+{time:'Tag 21',tier:'warning',text:'🟡 +9.2%. "Planetengetriebe-Verschleiss" (87%). Ticket. RUL: 18 Tage.'},
+{time:'Tag 22',tier:'resolved',text:'✅ Aktuator getauscht. 45 Min. Kein Sturz, kein Produktionsausfall.'}],
+insight:{type:'green',text:'<strong style="color:var(--g)">Ohne SIREN: Sturz auf BMW-Montagelinie → EUR 15.000+ Reparatur + Haftung. Mit SIREN: EUR 280, 45 Min.</strong>'}},
+{emoji:'🔋',title:'Firmware v2.4.1 Bug — 12 Figure 02 betroffen',sub:'SIREN korreliert BMS-Drift mit Firmware-Version',
+timeline:[
+{time:'Woche 1',tier:'info',text:'Unit 0847: BMS +8%. Einzelfall?'},
+{time:'Woche 2',tier:'warning',text:'🟡 4 Units: gleicher Drift. Alle Firmware v2.4.1.'},
+{time:'→',tier:'escalation',text:'🔴 12 Units betroffen. OTA-Rollback empfohlen.'},
+{time:'→',tier:'resolved',text:'✅ Firmware v2.4.2. Drift normalisiert. EUR 0 Hardware.'}],
+insight:{type:'green',text:'<strong style="color:var(--g)">12 × EUR 3.000 = EUR 36.000 vermieden. 1 OTA-Update.</strong>'}}],
+perMachine:{downtime:8000,emergency:4000,folge:3000,label:'Humanoid Unit'},licPerYear:960,hwPerMach:120},
+
+intralogistics:{id:'intralogistics',emoji:'📦',short:'Intralogistik',name:'Intralogistik / AMR',
+oems:{
+  kuka:{id:'kuka',label:'KUKA',model:'KMP 1500P',fleet:80000,fleetLabel:'AMR/AGV weltweit',
+    depot:{name:'KUKA Augsburg',loc:'Augsburg BY',lat:48.37,lng:10.89},
+    sub:'Jungheinrich · MiR · OTTO',
+    strat1:'KMP 1500P: 1.5t Payload, 96V/52Ah Li-ion, SLAM + QR Navigation. SIREN überwacht jeden Antrieb.',
+    strat2:'Erkennt Antriebs- und Liftmotor-Degradation. Reduziert Ausfälle im 3-Schichtbetrieb.'},
+  jungheinrich:{id:'jungheinrich',label:'Jungheinrich',model:'arculee small',fleet:130000,fleetLabel:'Lagertechnik-Geräte (inkl. AMR)',
+    depot:{name:'Jungheinrich HQ',loc:'Norderstedt HH',lat:53.69,lng:9.99},
+    sub:'KUKA · MiR · Locus Robotics',
+    strat1:'130\'000 Geräte im Feld. SIREN macht jeden Hubmotor vorhersagbar — ohne Sensor-Nachrüstung.',
+    strat2:'130.000 Geräte profitieren sofort. Predictive Maintenance ohne zusätzliche Sensorik.'}
+},currentOEM:'kuka',
+components:[
+{name:'Drive Motor L',kw:1.2,status:'ok',drift:1.8,icon:'⚙️',wBase:1200,wAmp:150,wFreq:3.0,desc:'Differential Drive · 1.8 m/s'},
+{name:'Drive Motor R',kw:1.2,status:'ok',drift:2.0,icon:'⚙️',wBase:1200,wAmp:140,wFreq:3.1,desc:'Differential Drive · symmetric'},
+{name:'Lift Motor',kw:2.8,status:'warn',drift:11.0,icon:'⬆️',wBase:2800,wAmp:300,wFreq:1.5,desc:'60mm Hub · 1.500 kg'},
+{name:'Steering Servo',kw:0.4,status:'ok',drift:0.9,icon:'🔄',wBase:400,wAmp:50,wFreq:5.0,desc:'±5mm Positionierung'},
+{name:'Battery Pack',kw:5.0,status:'ok',drift:3.2,icon:'🔋',wBase:5000,wAmp:400,wFreq:0.8,desc:'96V / 52Ah Li-ion'},
+{name:'Lidar/Scanner',kw:0.3,status:'danger',drift:22.0,icon:'📡',wBase:300,wAmp:30,wFreq:7.0,desc:'SICK/Hokuyo Safety-Scanner'}],
+context:[{l:'Payload aktuell',v:'1.280 / 1.500 kg',s:'ok'},{l:'Picks/h',v:'342',s:'ok'},{l:'AMR online',v:'18/20',s:'warn'},{l:'Ladezustand',v:'72%',s:'ok'}],
+weather:{now:{temp:18,hum:62,cond:'Lager: 18°C kontrolliert',icon:'📦'},forecast:[{day:'Mo',temp:18,icon:'📦',risk:0},{day:'Di',temp:18,icon:'📦',risk:0},{day:'Mi',temp:18,icon:'📦',risk:0},{day:'Do',temp:32,icon:'🔥',risk:2},{day:'Fr',temp:28,icon:'🌤️',risk:1}],riskNote:'Do: Aussenbereich-Tor offen für Anlieferung + 32°C → Lagertemp steigt → Batterie-Degradation beschleunigt.'},
+pq:{freq:49.98,thd:4.2,voltage:395,status:'warn',note:'THD erhöht durch Ladestationen. 20 AMR gleichzeitig laden = Harmonische.'},
+envHistory:[
+{m:'Jan',t:12,h:55,pat:null,learns:0},
+{m:'Feb',t:12,h:58,pat:'Ladezyklen: Winter-Profil (Batterie kalt)',learns:1},
+{m:'Mär',t:14,h:52,pat:null,learns:2},
+{m:'Apr',t:16,h:48,pat:'Frühling: Batterie-Effizienz +8%',learns:4},
+{m:'Mai',t:18,h:45,pat:'Torbereich-Korrelation gelernt',learns:6},
+{m:'Jun',t:24,h:50,pat:'⚠️ Lagertemp >22°C: Lift-Motor +12% Strom',learns:9},
+{m:'Jul',t:28,h:55,pat:'Peak Season: 3-Schicht-Muster gelernt',learns:13},
+{m:'Aug',t:30,h:58,pat:'🔥 Batterie-Degrad. bei 4 AMR erkannt',learns:17},
+{m:'Sep',t:22,h:50,pat:null,learns:19},
+{m:'Okt',t:16,h:55,pat:'Herbst: Baseline-Reset nach Peak',learns:21},
+{m:'Nov',t:13,h:60,pat:'Black Friday Last-Profil erkannt',learns:24},
+{m:'Dez',t:11,h:62,pat:'Weihnachts-Peak: Vollast-Muster',learns:27}],
+tickets:[
+{firm:'Zalando Lahr',loc:'Lahr BW',lat:48.34,lng:7.87,issue:'Lidar-Verschmutzung +22% — KMP 1500P',prio:1,comp:'Scanner',mach:'KMP 1500P · SN: KMP-2024-3321',tech:'Lukas B.',when:'morgen',sav:4200},
+{firm:'Migros Suhr',loc:'Suhr AG',lat:47.37,lng:8.08,issue:'Lift-Spindel +11%',prio:2,comp:'Lift',mach:'KMP 1500 · SN: KMP-2023-8891',tech:'Lukas B.',when:'Mittwoch',sav:2800}],
+scenarios:[
+{emoji:'📡',title:'Lidar verschmutzt — Picks/h sinken bei Zalando',sub:'SIREN erkennt Scanner-Kompensation über Energiesignatur am KMP 1500P',
+timeline:[
+{time:'Tag 1–7',tier:'heartbeat',text:'🟢 Lidar: 0.3 kW. SLAM-Navigation normal. 342 Picks/h.'},
+{time:'Tag 8',tier:'info',text:'Scanner +8%. Scan-Rate steigt (KMP kompensiert). SIREN: Stufe 1→2.'},
+{time:'Tag 12',tier:'warning',text:'🟡 +22%. Picks/h −3%. Ticket: Linse reinigen. <strong>5 Min Aufwand.</strong>'},
+{time:'Tag 13',tier:'resolved',text:'✅ Linse gereinigt. Drift → 0.4%. Picks/h zurück auf 342.'}],
+insight:{type:'green',text:'<strong style="color:var(--g)">−3% × 20 AMR × 342 Picks/h = −205 Picks/h Lagerleistung. Mit SIREN: 5 Min Reinigung.</strong>'}},
+{emoji:'⬆️',title:'Lift-Spindel — 1.280 kg Lastabwurf verhindert',sub:'KMP 1500P: Energiesignatur erkennt Spindelverschleiss vor Blockade',
+timeline:[
+{time:'Woche 1–3',tier:'heartbeat',text:'🟢 Lift: 2.8 kW bei 1.500 kg. Langsam +3%…+7%…'},
+{time:'Woche 4',tier:'warning',text:'🟡 +11%. "Spindelverschleiss" (87%). Ticket → Nachtschicht.'},
+{time:'→',tier:'resolved',text:'✅ Spindel getauscht. 90 Min Nachtschicht. Kein Paketschaden.'}],
+insight:{type:'green',text:'<strong style="color:var(--g)">Ohne SIREN: Last fällt → Ware beschädigt → EUR 8.000+. Mit: EUR 180, 90 Min.</strong>'}}],
+perMachine:{downtime:3200,emergency:1200,folge:800,label:'AMR/AGV Unit'},licPerYear:360,hwPerMach:150},
+
+wind:{id:'wind',emoji:'💨',short:'Wind',name:'Windenergie',
+oems:{
+  vestas:{id:'vestas',label:'Vestas',model:'V150-6.0 MW',fleet:50000,fleetLabel:'Turbinen weltweit (onshore/offshore)',
+    depot:{name:'Vestas Service Center',loc:'Husum SH',lat:54.49,lng:9.05},
+    sub:'Siemens Gamesa · Enercon · Nordex',
+    strat1:'V150-6.0 MW: PMG-Generator, ZF-Getriebe, 150m Rotor. SIREN als CT-only — keine CMS nötig.',
+    strat2:'Erkennt Hauptlager-Degradation 6 Monate vor CMS. Spart EUR 280.000+ pro Turbine.'},
+  gamesa:{id:'gamesa',label:'Siemens Gamesa',model:'SG 6.6-170',fleet:45000,fleetLabel:'Turbinen installiert (90+ GW)',
+    depot:{name:'Gamesa Service',loc:'Hamburg HH',lat:53.55,lng:9.99},
+    sub:'Vestas · Enercon · Nordex',
+    strat1:'SG 6.6-170: DFIG, 170m Rotor, 3-stage ZF-Getriebe. SIREN erkennt Trends 6 Monate vor CMS.',
+    strat2:'90+ GW installiert. SIREN erkennt Getriebe- und Pitch-Trends rein über Energiesignaturen.'}
+},currentOEM:'vestas',
+components:[
+{name:'Generator PMG',kw:6000,status:'ok',drift:0.8,icon:'⚡',wBase:60000,wAmp:8000,wFreq:0.3,desc:'6.0 MW · 439 U/min'},
+{name:'Pitch Motor 1',kw:15,status:'warn',drift:14.2,icon:'🔄',wBase:15000,wAmp:2000,wFreq:1.2,desc:'Blattverstellung 0–90°'},
+{name:'Pitch Motor 2',kw:15,status:'ok',drift:1.1,icon:'🔄',wBase:15000,wAmp:1800,wFreq:1.3,desc:'Redundant Blade 2'},
+{name:'Yaw Drive',kw:22,status:'ok',drift:3.4,icon:'🧭',wBase:22000,wAmp:3000,wFreq:0.7,desc:'8× Planetengetriebe-Motoren'},
+{name:'Cooling System',kw:8,status:'ok',drift:2.0,icon:'❄️',wBase:8000,wAmp:600,wFreq:2.1,desc:'Getriebe + Generator Kühlung'},
+{name:'Hauptlager',kw:0,status:'danger',drift:28.0,icon:'🔩',wBase:1000,wAmp:800,wFreq:0.4,desc:'Rotor Main Bearing · ZF'}],
+context:[{l:'Wind',v:'12.4 m/s',s:'ok'},{l:'Rotor-RPM',v:'10.4',s:'ok'},{l:'Leistung',v:'5.2 / 6.0 MW',s:'ok'},{l:'Gondeltemp.',v:'38°C',s:'warn'}],
+weather:{now:{temp:8,hum:82,cond:'Nordsee: 12.4 m/s NW',icon:'💨'},forecast:[{day:'Mo',temp:6,icon:'💨',risk:0},{day:'Di',temp:4,icon:'🌊',risk:0},{day:'Mi',temp:2,icon:'❄️',risk:1},{day:'Do',temp:-3,icon:'🧊',risk:2},{day:'Fr',temp:-5,icon:'🧊',risk:2}],riskNote:'Do–Fr Frost: Pitch-Motoren +22% Stromaufnahme (Schmiermittel-Viskosität). Hauptlager-Drift + Kälte = Alarm vorziehen.'},
+pq:{freq:50.02,thd:3.5,voltage:690,status:'ok',note:'Grid-Einspeisequalität OK. Harmonische durch Umrichter im Normbereich.'},
+envHistory:[
+{m:'Jan',t:-2,h:88,pat:'❄️ Icing-Profil: Pitch +22% Strom normal',learns:3},
+{m:'Feb',t:-1,h:85,pat:'Frost-Schmiermittel: Hauptlager-Baseline',learns:6},
+{m:'Mär',t:4,h:80,pat:'Übergang Frost→Frühling erkannt',learns:8},
+{m:'Apr',t:8,h:75,pat:'Sturmsaison: Pitch-Zyklen ×3',learns:11},
+{m:'Mai',t:12,h:70,pat:null,learns:13},
+{m:'Jun',t:16,h:68,pat:'Sommer: Generator-Kühlung +15%',learns:16},
+{m:'Jul',t:19,h:72,pat:'⚠️ Gondeltemp >40°C: Getriebe-Risiko',learns:20},
+{m:'Aug',t:20,h:75,pat:'Salzluft-Korrelation: Korrosions-Indikator',learns:24},
+{m:'Sep',t:16,h:78,pat:'Herbststürme: Böen-Profil gelernt',learns:28},
+{m:'Okt',t:10,h:82,pat:'🔥 Hauptlager-Muster von Jan bestätigt',learns:32},
+{m:'Nov',t:4,h:86,pat:'Vorjahres-Match: Prädiktion 94% genau',learns:36},
+{m:'Dez',t:0,h:90,pat:'❄️ Jahresprofil komplett. 36 Muster.',learns:38}],
+tickets:[
+{firm:'Offshore Nordsee',loc:'Helgoland',lat:54.17,lng:7.89,issue:'Hauptlager V150 +28% — 6 Monate vor CMS',prio:1,comp:'Hauptlager',mach:'V150-6.0MW · SN: V150-2021-4421',tech:'Offshore-Team',when:'Wetterfenster',sav:280000},
+{firm:'Windpark Schleswig',loc:'Husum SH',lat:54.49,lng:9.05,issue:'Pitch Motor 1 Asymmetrie +14.2%',prio:2,comp:'Pitch',mach:'V150-6.0MW · SN: V150-2022-2201',tech:'Thomas K.',when:'Donnerstag',sav:45000}],
+scenarios:[
+{emoji:'🔩',title:'Hauptlager V150 — EUR 280.000 Schaden vermieden',sub:'SIREN Energy Signature 6 Monate vor CMS-Alarm',
+timeline:[
+{time:'Mon 1–6',tier:'heartbeat',text:'🟢 Generator PMG: 6.0 MW nominal. SIREN lernt wind-adjustierte Baselines.'},
+{time:'Monat 7',tier:'info',text:'Generator +2% bei 8–12 m/s. CMS: keine Anomalie. SIREN: Stufe 2→3.'},
+{time:'Monat 9',tier:'warning',text:'🟡 +8%. "Hauptlager-Degradation" (91%). CMS erst jetzt. <strong>SIREN: 6 Monate früher.</strong>'},
+{time:'→',tier:'escalation',text:'🔴 RUL: 4 Monate. Hauptlagertausch planen. Ticket → Offshore-Logistik.'},
+{time:'→',tier:'resolved',text:'✅ Geplanter Tausch im Wetterfenster. Minimaler Produktionsverlust.'}],
+insight:{type:'green',text:'<strong style="color:var(--g)">Ohne: 3–6 Monate Stillstand + Krantransport. EUR 280.000+. Mit SIREN: geplant, minimal.</strong>'}},
+{emoji:'📊',title:'200 V150-Turbinen, 1 Firmware-Bug',sub:'Stufe 4 korreliert Firmware v8.2.1 mit Pitch-Asymmetrie',
+timeline:[
+{time:'→',tier:'info',text:'47/200 Turbinen: Pitch +3–5%. Alle Firmware v8.2.1.'},
+{time:'→',tier:'escalation',text:'🔴 Firmware-Bug. Rollback empfohlen.'},
+{time:'→',tier:'resolved',text:'✅ OTA-Rollback. 47 × EUR 25.000 vermieden.'}],
+insight:{type:'green',text:'<strong style="color:var(--g)">EUR 1.175.000 vermieden durch Firmware-Korrelation über Stufe 4.</strong>'}}],
+perMachine:{downtime:45000,emergency:25000,folge:15000,label:'Turbine'},licPerYear:2400,hwPerMach:350},
+
+healthcare:{id:'healthcare',emoji:'🏥',short:'Healthcare',name:'Healthcare / Medizintechnik',
+oems:{
+  siemens:{id:'siemens',label:'Siemens Healthineers',model:'MAGNETOM Vida 3T',fleet:60000,fleetLabel:'MRT/CT weltweit',
+    depot:{name:'Healthineers Service',loc:'Erlangen BY',lat:49.59,lng:11.01},
+    sub:'GE Healthcare · Philips · Canon',
+    strat1:'MAGNETOM Vida: 3T, 70cm Bore, 60 kW SEP, Zero-Helium-Boiloff. ~58 kWh/Tag. SIREN schützt EUR 2M+ Investment.',
+    strat2:'Schützt EUR 2M+ MRT-Investition. Erkennt Tisch-, Gradient- und Kompressor-Anomalien.'},
+  ge:{id:'ge',label:'GE HealthCare',model:'SIGNA Premier 3T',fleet:50000,fleetLabel:'MRT installiert weltweit',
+    depot:{name:'GE Service Center',loc:'Buc FR',lat:48.77,lng:2.12},
+    sub:'Siemens Healthineers · Philips · Canon',
+    strat1:'SIGNA Premier: SuperG Gradient 2.4 MW peak, 45 kW Dissipation, 146 RF-Kanäle. ~58 kWh/Tag.',
+    strat2:'60.000+ installierte Systeme. SIREN verhindert Terminausfälle und schützt Patientenversorgung.'}
+},currentOEM:'siemens',
+components:[
+{name:'Helium Kompressor',kw:7,status:'ok',drift:2.1,icon:'❄️',wBase:7000,wAmp:500,wFreq:1.5,desc:'Cold Head · 6-8 kW → 1W @ 4K'},
+{name:'Gradient Coil X',kw:20,status:'warn',drift:7.8,icon:'🧲',wBase:20000,wAmp:3000,wFreq:0.6,desc:'60 mT/m · 200 T/m/s'},
+{name:'Gradient Coil Y',kw:20,status:'ok',drift:1.2,icon:'🧲',wBase:20000,wAmp:2800,wFreq:0.7,desc:'Wassergekühltes Hohlleiterdesign'},
+{name:'RF Amplifier',kw:18,status:'ok',drift:1.5,icon:'📡',wBase:18000,wAmp:2000,wFreq:1.8,desc:'BioMatrix RF · 3T'},
+{name:'Cooling SEP',kw:8,status:'ok',drift:3.0,icon:'💧',wBase:8000,wAmp:500,wFreq:2.4,desc:'60 kW Wärmeabfuhr · 100 l/min'},
+{name:'Patient Table',kw:0.8,status:'danger',drift:15.0,icon:'🛏️',wBase:800,wAmp:100,wFreq:4.0,desc:'eDrive · motorisiert · 250 kg max'}],
+context:[{l:'Raumtemp.',v:'20.1°C',s:'ok'},{l:'Helium Level',v:'87%',s:'ok'},{l:'Scans heute',v:'34',s:'ok'},{l:'Energieverbrauch',v:'~58 kWh/Tag',s:'ok'}],
+weather:{now:{temp:22,hum:40,cond:'Klinik: klimatisiert',icon:'🏥'},forecast:[{day:'Mo',temp:22,icon:'🏥',risk:0},{day:'Di',temp:22,icon:'🏥',risk:0},{day:'Mi',temp:38,icon:'🔥',risk:2},{day:'Do',temp:36,icon:'🔥',risk:2},{day:'Fr',temp:28,icon:'⛅',risk:0}],riskNote:'Mi–Do Hitzewelle: Helium-Kompressor +25% Last. Gradient-Kühlung kritisch. Scan-Limit empfohlen: max 40/Tag statt 50.'},
+pq:{freq:50.00,thd:1.2,voltage:400,status:'ok',note:'Klinik-USV: Medizinische Versorgungsqualität. THD exzellent.'},
+envHistory:[
+{m:'Jan',t:21,h:38,pat:null,learns:0},
+{m:'Feb',t:21,h:38,pat:'Scan-Frequenz: Montag-Peak gelernt',learns:2},
+{m:'Mär',t:21,h:40,pat:'Gradient-Thermik: Sequenz-abhängig',learns:4},
+{m:'Apr',t:21,h:42,pat:null,learns:5},
+{m:'Mai',t:22,h:45,pat:'Helium-Kompressor: Sommer-Baseline',learns:7},
+{m:'Jun',t:23,h:48,pat:'⚠️ Aussentemp >30°C: Kühlung +18%',learns:10},
+{m:'Jul',t:24,h:50,pat:'🔥 Scan-Limit-Empfehlung bei Hitze',learns:14},
+{m:'Aug',t:24,h:52,pat:'Tisch-Motor: Korrelation mit Scan-Anzahl',learns:18},
+{m:'Sep',t:22,h:48,pat:null,learns:19},
+{m:'Okt',t:21,h:42,pat:'Herbst: Helium-Baseline zurück',learns:21},
+{m:'Nov',t:21,h:40,pat:'Gradient-Isolation: Winter-Profil',learns:23},
+{m:'Dez',t:21,h:38,pat:'Jahresprofil komplett. 23 Muster.',learns:25}],
+tickets:[
+{firm:'UniversitätsSpital Zürich',loc:'Zürich ZH',lat:47.38,lng:8.54,issue:'Patient Table eDrive +15% — MAGNETOM Vida',prio:1,comp:'Table',mach:'MAGNETOM Vida 3T · SN: MV-2022-4421',tech:'Anna S.',when:'morgen',sav:8000},
+{firm:'Kantonsspital St. Gallen',loc:'St. Gallen SG',lat:47.42,lng:9.38,issue:'Gradient X Isolation +7.8% nur bei DWI',prio:2,comp:'Gradient',mach:'MAGNETOM Vida 3T · SN: MV-2023-2201',tech:'Anna S.',when:'Samstag',sav:35000}],
+scenarios:[
+{emoji:'🛏️',title:'MAGNETOM Vida — Patiententisch blockiert Montag 08:15',sub:'SIREN erkennt eDrive-Spindelverschleiss am Sonntag',
+timeline:[
+{time:'Tag 1–10',tier:'heartbeat',text:'🟢 Patient Table eDrive: 0.8 kW. 34 Scans/Tag, ~58 kWh Gesamtverbrauch.'},
+{time:'Tag 11',tier:'warning',text:'🟡 +15%. "Spindelverschleiss" (92%). Ticket: Service vor Montag-OP-Plan.'},
+{time:'So 18:00',tier:'resolved',text:'✅ Spindel getauscht, 90 Min. Montag: voller Plan, kein Ausfall.'}],
+insight:{type:'green',text:'<strong style="color:var(--g)">Ohne: Montag 08:15 Tisch blockiert. 6 MRT-Termine abgesagt × EUR 1.200 = EUR 7.200+. Mit: 90 Min Sonntag.</strong>'}},
+{emoji:'🧲',title:'Gradient X Isolation — Helium-Quench verhindert',sub:'SIREN erkennt Isolationsabfall nur bei DWI-Sequenzen',
+timeline:[
+{time:'Mon 1–6',tier:'info',text:'SIREN lernt Gradient Coil X Energieprofil bei T1, T2, DWI, FLAIR separat.'},
+{time:'Monat 7',tier:'warning',text:'🟡 +7.8% nur bei DWI (hoher Gradient-Load). "Isolationswiderstand ↓". Ticket.'},
+{time:'→',tier:'resolved',text:'✅ Isolation gemessen: −15%. Spule geplant erneuert im Wartungsfenster.'}],
+insight:{type:'green',text:'<strong style="color:var(--g)">Ohne: Kurzschluss → Helium-Quench → 3–6 Wochen Ausfall → EUR 150.000+. Mit SIREN: geplant.</strong>'}}],
+perMachine:{downtime:12000,emergency:8000,folge:5000,label:'MRT/CT System'},licPerYear:1200,hwPerMach:280}
+};
+// STATE
+let currentDomain='industrial',selectedComp=5,waveAnimId=null,fleetMapInstance=null;
+const audits=[];
+const chainLog=[];let chainTimer=null,chainCounter=0;
+function fakeHash(input){let h=0x811c9dc5;for(let i=0;i<input.length;i++){h^=input.charCodeAt(i);h=(h*0x01000193)>>>0}const hex=h.toString(16).padStart(8,'0');return hex+hex.split('').reverse().join('')+hex.substring(0,16)}
+function addChainEvent(type,comp,drift,tier){
+  const d=DOMAINS[currentDomain],o=getOEM();
+  const ts=new Date().toISOString();
+  const prev=chainLog.length>0?chainLog[chainLog.length-1].hash:'0000000000000000000000000000000000000000';
+  const payload=ts+'|'+d.id+'|'+o.id+'|'+type+'|'+(comp||'-')+'|'+(drift||0)+'|'+(d.weather?.now?.temp||'-')+'|'+(d.pq?.freq||'-')+'|'+prev;
+  const hash=fakeHash(payload);
+  chainCounter++;
+  chainLog.push({ts,type,comp,drift,tier:tier||'info',hash,prev:prev.substring(0,8),n:chainCounter});
+  if(chainLog.length>30)chainLog.shift();
+  renderChainLog();
+}
+function renderChainLog(){
+  const el=document.getElementById('chainLog');if(!el)return;
+  const countEl=document.getElementById('chainCount');if(countEl)countEl.textContent=chainCounter;
+  el.innerHTML=chainLog.slice().reverse().map((e,i)=>{
+    const tierClass=e.tier==='warning'?'warn':e.tier==='escalation'?'crit':'';
+    const tierIcon=e.tier==='heartbeat'?'💚':e.tier==='warning'?'🟡':e.tier==='escalation'?'🔴':e.tier==='resolved'?'✅':'📊';
+    const age=i===0?'JETZT':i+'s';
+    return`<div class="chain-entry ${tierClass}">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>${tierIcon} <strong>${e.type}</strong>${e.comp?' · '+e.comp:''}</div>
+        <div style="font-size:6px;color:var(--tm)">#${e.n}</div>
+      </div>
+      ${e.drift?'<div style="color:var(--am)">Drift: +'+e.drift+'%</div>':''}
+      <div class="chain-hash">🔗 ${e.hash} ← prev:${e.prev}…</div>
+    </div>`}).join('');
+  el.scrollTop=0;
+}
+const chainEvents=[
+  {type:'HEARTBEAT',comp:null,drift:null,tier:'heartbeat'},
+  {type:'BASELINE',comp:'auto',drift:null,tier:'info'},
+  {type:'ENV_LOG',comp:null,drift:null,tier:'info'},
+  {type:'PQ_CHECK',comp:null,drift:null,tier:'info'},
+  {type:'DRIFT_CHECK',comp:'auto',drift:'auto',tier:'auto'},
+  {type:'HEARTBEAT',comp:null,drift:null,tier:'heartbeat'},
+  {type:'WAVEFORM',comp:'auto',drift:null,tier:'info'},
+  {type:'ENV_LOG',comp:null,drift:null,tier:'info'},
+  {type:'DRIFT_CHECK',comp:'auto',drift:'auto',tier:'auto'},
+  {type:'FLEET_SYNC',comp:null,drift:null,tier:'info'},
+];
+let chainEventIdx=0;
+function tickChain(){
+  const d=DOMAINS[currentDomain];
+  const evt={...chainEvents[chainEventIdx%chainEvents.length]};
+  if(evt.comp==='auto'){const c=d.components[Math.floor(Math.random()*d.components.length)];evt.comp=c.name;if(evt.drift==='auto'){evt.drift=c.drift;evt.tier=c.status==='ok'?'heartbeat':c.status==='warn'?'warning':'escalation'}}
+  if(evt.type==='ENV_LOG')evt.comp=d.weather?.now?.temp+'°C / '+d.weather?.now?.hum+'%';
+  if(evt.type==='PQ_CHECK')evt.comp=d.pq?.freq+'Hz / THD '+d.pq?.thd+'%';
+  addChainEvent(evt.type,evt.comp,evt.drift,evt.tier);
+  chainEventIdx++;
+}
+function startChain(){if(chainTimer)clearInterval(chainTimer);chainLog.length=0;chainCounter=0;chainEventIdx=0;
+  addChainEvent('GENESIS','Chain initialisiert',null,'info');
+  addChainEvent('DOMAIN',DOMAINS[currentDomain].name,null,'info');
+  addChainEvent('OEM',getOEM().label+' · '+getOEM().model,null,'info');
+  chainTimer=setInterval(tickChain,3000);
+}
+function getOEM(){const d=DOMAINS[currentDomain];return d.oems[d.currentOEM]}
+function setOEM(oemId){DOMAINS[currentDomain].currentOEM=oemId;document.querySelectorAll('.oem-btn').forEach(b=>b.classList.toggle('act',b.dataset.oem===oemId));renderAll();addAudit('OEM','→ '+getOEM().label,'b')}
+function setDomain(id){currentDomain=id;const d=DOMAINS[id];const di=d.components.findIndex(c=>c.status==='danger');const wi=d.components.findIndex(c=>c.status==='warn');selectedComp=di>=0?di:(wi>=0?wi:0);document.querySelectorAll('.dom-btn').forEach(b=>b.classList.toggle('act',b.dataset.dom===id));if(fleetMapInstance){fleetMapInstance.remove();fleetMapInstance=null}renderOEMToggle();renderAll();if(chainTimer)clearInterval(chainTimer)}
+function showV(n){document.querySelectorAll('.vw').forEach((v,i)=>v.classList.toggle('show',i===n));document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('act',i===n));if(n===0)startWave();if(n===4){initFleetMap();if(fleetMapInstance)setTimeout(()=>fleetMapInstance.invalidateSize(),100)}}
+setInterval(()=>{document.getElementById('clk').textContent=new Date().toLocaleTimeString('de-CH')},1000);
+function renderOEMToggle(){const d=DOMAINS[currentDomain];const c=document.getElementById('oemToggle');if(!c)return;c.innerHTML=Object.values(d.oems).map(o=>`<button class="dom-btn${o.id===d.currentOEM?' act':''}" data-oem="${o.id}" onclick="setOEM('${o.id}')" style="font-size:9px">${o.label}</button>`).join('')}
+function init(){
+  document.getElementById('domSel').innerHTML=Object.values(DOMAINS).map(d=>`<button class="dom-btn${d.id===currentDomain?' act':''}" data-dom="${d.id}" onclick="setDomain('${d.id}')">${d.emoji} ${d.short}</button>`).join('');
+  document.getElementById('tabBar').innerHTML=['⚡ Live Monitor','🧠 Intelligenz','🔧 Frühwarnung','💼 Business Case','🌐 Fleet Dashboard'].map((t,i)=>`<div class="tab${i===0?' act':''}" onclick="showV(${i})">${t}</div>`).join('');
+  renderOEMToggle();renderAll();
+}
+function renderAll(){renderTab0();renderTab1();renderTab2();renderTab3();renderTab4()}
+function addAudit(t,e,c){audits.unshift({ts:new Date().toLocaleTimeString('de-CH'),t,e,c});if(audits.length>12)audits.pop();const el=document.getElementById('aLog');if(el)el.innerHTML=audits.map(a=>`<div class="ae ae-${a.c}"><div class="ats">${a.ts} · ${a.t}</div><div class="aev">${a.e}</div></div>`).join('')}
+// TAB 0
+function renderTab0(){
+  const d=DOMAINS[currentDomain],avoided=d.components.filter(c=>c.status!=='ok').length;
+  document.getElementById('v0').innerHTML=`
+  <div style="padding:12px 20px 0"><div class="sav-row">
+    <div class="sav"><div class="sav-v">${avoided}</div><div class="sav-l">Ausfälle verhindert</div></div>
+    <div class="sav"><div class="sav-v">EUR ${Math.round(d.perMachine.downtime*0.4).toLocaleString('de-DE')}</div><div class="sav-l">Kosten vermieden/Monat</div></div>
+    <div class="sav"><div class="sav-v">${d.components.filter(c=>c.status==='ok').length}/${d.components.length}</div><div class="sav-l">Komponenten OK</div></div>
+    <div class="sav"><div class="sav-v">${getOEM().label}</div><div class="sav-l">${getOEM().model}</div><div class="sav-s">${getOEM().fleet.toLocaleString('de-DE')} installiert</div></div>
+  </div></div>
+  <div style="padding:0 20px 0;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div style="padding:10px;background:linear-gradient(135deg,#2563eb06,var(--s));border-radius:10px;border:1px solid #2563eb18">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div style="font-size:9px;font-weight:700;color:var(--bl)">🌦️ Umgebung & Forecast</div>
+        <div style="font-size:16px">${d.weather.now.icon}</div>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px">
+        <div style="font-size:20px;font-weight:800;font-family:'Syne'">${d.weather.now.temp}°C</div>
+        <div style="font-size:8px;color:var(--td)">${d.weather.now.hum}% · ${d.weather.now.cond}</div>
+      </div>
+      <div style="display:flex;gap:4px;margin-bottom:6px">${d.weather.forecast.map(f=>'<div style="flex:1;text-align:center;padding:4px;border-radius:6px;background:'+(f.risk===0?'var(--s2)':f.risk===1?'#d9770608':'#dc262608')+';border:1px solid '+(f.risk===0?'var(--bd)':f.risk===1?'#d9770618':'#dc262618')+'"><div style="font-size:12px">'+f.icon+'</div><div style="font-size:7px;font-weight:600">'+f.day+'</div><div style="font-size:8px;font-weight:700;color:'+(f.risk===0?'var(--tx)':f.risk===1?'var(--am)':'var(--rd)')+'">'+f.temp+'°</div></div>').join('')}</div>
+      <div style="font-size:8px;color:${d.weather.forecast.some(f=>f.risk>=2)?'var(--rd)':'var(--td)'};line-height:1.4;padding:4px 6px;background:${d.weather.forecast.some(f=>f.risk>=2)?'#dc262606':'transparent'};border-radius:4px">${d.weather.forecast.some(f=>f.risk>=2)?'⚠️ ':''}<strong>SIREN:</strong> ${d.weather.riskNote}</div>
+    </div>
+    <div style="padding:10px;background:linear-gradient(135deg,#7c3aed06,var(--s));border-radius:10px;border:1px solid #7c3aed18">
+      <div style="font-size:9px;font-weight:700;color:#7c3aed;margin-bottom:6px">⚡ Power Quality</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:6px">
+        <div style="text-align:center;padding:6px;background:var(--s2);border-radius:8px;border:1px solid var(--bd)"><div style="font-size:14px;font-weight:800;font-family:'Syne';color:${d.pq.status==='ok'?'var(--g)':'var(--am)'}">${d.pq.freq}</div><div style="font-size:7px;color:var(--tm)">Hz</div></div>
+        <div style="text-align:center;padding:6px;background:var(--s2);border-radius:8px;border:1px solid var(--bd)"><div style="font-size:14px;font-weight:800;font-family:'Syne';color:${d.pq.thd>4?'var(--am)':'var(--g)'}">${d.pq.thd}%</div><div style="font-size:7px;color:var(--tm)">THD</div></div>
+        <div style="text-align:center;padding:6px;background:var(--s2);border-radius:8px;border:1px solid var(--bd)"><div style="font-size:14px;font-weight:800;font-family:'Syne';color:var(--g)">${d.pq.voltage}V</div><div style="font-size:7px;color:var(--tm)">Netz</div></div>
+      </div>
+      <div style="font-size:8px;color:var(--td);line-height:1.4"><strong>Claim 18:</strong> ${d.pq.note}</div>
+    </div>
+  </div>
+  <div style="padding:0 20px 8px">
+    <div style="padding:12px;background:linear-gradient(135deg,#0a684704,var(--s));border-radius:10px;border:1px solid #0a684718;position:relative;overflow:hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-size:9px;font-weight:700;color:var(--g)">📅 Environment History — SIREN lernt über Zeit</div>
+        <div style="display:flex;gap:4px">
+          <button onclick="toggleEnvAnim()" id="envPlayBtn" style="font-size:8px;padding:2px 8px;border-radius:4px;border:1px solid var(--bd);background:var(--s2);cursor:pointer;font-weight:700">▶ Play</button>
+          <button onclick="resetEnvAnim()" style="font-size:8px;padding:2px 8px;border-radius:4px;border:1px solid var(--bd);background:var(--s2);cursor:pointer">↺</button>
+        </div>
+      </div>
+      <div id="envTimeline" style="display:flex;gap:3px;margin-bottom:8px"></div>
+      <div id="envDetail" style="min-height:50px"></div>
+      <div style="margin-top:6px;display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:8px;color:var(--tm)">Gelernte Muster: <strong style="color:var(--g)" id="envLearnCount">0</strong></div>
+        <div style="width:120px;height:4px;background:var(--s2);border-radius:2px;overflow:hidden"><div id="envLearnBar" style="height:100%;background:var(--g);border-radius:2px;width:0%;transition:width 0.5s"></div></div>
+        <div style="font-size:8px;color:var(--tm)">Prädiktionsgenauigkeit: <strong style="color:var(--g)" id="envAccuracy">60%</strong></div>
+      </div>
+    </div>
+  </div>
+  <div class="g0">
+    <div><div class="crd" style="padding:10px"><div class="ct">${d.emoji} Komponenten</div><div id="compList"></div></div>
+      <div class="crd" style="padding:10px;margin-top:8px"><div class="ct">📊 Kontext</div>${d.context.map(c=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bd);font-size:10px"><span style="color:var(--td)">${c.l}</span><span class="mono" style="font-weight:600;color:${c.s==='ok'?'var(--g)':'var(--am)'}">${c.v}</span></div>`).join('')}</div></div>
+    <div>
+      <div class="srow">
+        <div class="sc sc-g"><div class="sv sv-g">${d.components.reduce((s,c)=>s+c.kw*1000,0).toLocaleString('de-DE')}</div><div class="su">Watt</div><div class="slb">TOTAL</div></div>
+        <div class="sc sc-b"><div class="sv sv-b">${d.components.length}</div><div class="su">überwacht</div><div class="slb">KOMP.</div></div>
+      </div>
+      <div class="wave-wrap">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <div style="font-size:9px;color:#94a3b8;font-family:'JetBrains Mono',monospace" id="waveLabel">Waveform: ${d.components[selectedComp].name}</div>
+          <div style="font-size:9px;font-family:'JetBrains Mono',monospace;color:${d.components[selectedComp].status==='ok'?'#12b76a':d.components[selectedComp].status==='warn'?'#d97706':'#dc2626'}" id="wavePower">${d.components[selectedComp].kw} kW</div>
+        </div>
+        <canvas id="waveCanvas" width="2000" height="400" style="width:100%;height:200px;display:block"></canvas>
+      </div>
+      <div class="crd" style="margin-top:8px"><div class="ct">🎯 RUL</div><div id="rulDisplay"></div></div>
+    </div>
+    <div>
+      <div class="crd" style="padding:10px"><div class="ct">📋 Audit Log</div><div id="aLog" style="max-height:200px;overflow-y:auto"></div></div>
+      <div class="crd" style="padding:10px;margin-top:8px"><div class="ct">📡 Eskalation</div>
+        <div style="display:grid;gap:4px">
+          <div style="padding:5px 8px;background:#12b76a06;border-radius:6px;border-left:2px solid var(--gm);font-size:8px"><strong>HEARTBEAT</strong> — Stündlich</div>
+          <div style="padding:5px 8px;background:#d9770606;border-radius:6px;border-left:2px solid var(--am);font-size:8px"><strong>WARNING</strong> — Ticket → Ops</div>
+          <div style="padding:5px 8px;background:#dc262606;border-radius:6px;border-left:2px solid var(--rd);font-size:8px"><strong>ESCALATION</strong> — P1/P2 → Service</div>
+        </div>
+      </div>
+      <div class="crd" style="padding:10px;margin-top:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div class="ct" style="margin:0">🔐 Integrity Chain</div>
+          <div style="display:flex;gap:3px;align-items:center">
+            <div id="chainPulse" style="width:6px;height:6px;border-radius:50%;background:var(--g);animation:pulse 2s infinite"></div>
+            <span style="font-size:7px;color:var(--g);font-weight:600">LIVE</span>
+          </div>
+        </div>
+        <div id="chainLog" style="max-height:180px;overflow-y:auto;font-family:'JetBrains Mono',monospace"></div>
+        <div style="margin-top:6px;padding:6px 8px;background:var(--s2);border-radius:6px;display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:7px;color:var(--tm)">Events: <strong id="chainCount" style="color:var(--g)">0</strong></div>
+          <div style="font-size:7px;color:var(--tm)">Chain: <strong style="color:var(--g)">SHA-256</strong></div>
+          <div style="font-size:7px;color:var(--tm)">Integrität: <strong style="color:var(--g)">✓ 100%</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+  renderCompList();renderRUL();startWave();envMonth=0;renderEnvTimeline();startChain();addAudit('SYS','Domain: '+d.name,'b');
+}
+let envAnimId=null,envMonth=0,envPlaying=false;
+function renderEnvTimeline(){
+  const d=DOMAINS[currentDomain];if(!d.envHistory)return;
+  const el=document.getElementById('envTimeline');if(!el)return;
+  el.innerHTML=d.envHistory.map((e,i)=>{
+    const active=i<=envMonth;const isCurrent=i===envMonth;
+    const hasPattern=e.pat&&active;
+    const bg=!active?'var(--s2)':e.t>25?'#dc262618':e.t<5?'#2563eb18':'#0a684712';
+    const border=isCurrent?'2px solid var(--g)':'1px solid '+(hasPattern?'var(--g)':'var(--bd)');
+    return`<div onclick="setEnvMonth(${i})" style="flex:1;text-align:center;padding:4px 2px;border-radius:6px;background:${bg};border:${border};cursor:pointer;opacity:${active?1:0.3};transition:all 0.3s">
+      <div style="font-size:7px;font-weight:700;color:${isCurrent?'var(--g)':'var(--tm)'}">${e.m}</div>
+      <div style="font-size:9px;font-weight:800;color:${e.t>28?'var(--rd)':e.t<3?'var(--bl)':'var(--tx)'}">${e.t}°</div>
+      <div style="font-size:7px;color:var(--td)">${e.h}%</div>
+      ${hasPattern?'<div style="width:5px;height:5px;border-radius:50%;background:var(--g);margin:2px auto 0"></div>':''}
+    </div>`}).join('');
+  renderEnvDetail();
+}
+function renderEnvDetail(){
+  const d=DOMAINS[currentDomain];if(!d.envHistory)return;
+  const e=d.envHistory[envMonth],el=document.getElementById('envDetail');if(!el)return;
+  const maxLearns=d.envHistory[d.envHistory.length-1].learns;
+  const acc=Math.round(60+e.learns/maxLearns*39);
+  el.innerHTML=`<div style="display:flex;gap:10px;align-items:flex-start">
+    <div style="min-width:80px;padding:8px;background:var(--s2);border-radius:8px;text-align:center;border:1px solid var(--bd)">
+      <div style="font-size:8px;color:var(--tm);font-weight:600">${e.m} 2025</div>
+      <div style="font-size:22px;font-weight:800;font-family:'Syne';color:${e.t>28?'var(--rd)':e.t<3?'var(--bl)':'var(--tx)'}">${e.t}°C</div>
+      <div style="font-size:9px;color:var(--td)">${e.h}% Feuchtigkeit</div>
+    </div>
+    <div style="flex:1">
+      ${e.pat?`<div style="padding:6px 8px;background:#0a684708;border-radius:6px;border-left:3px solid var(--g);margin-bottom:4px">
+        <div style="font-size:8px;font-weight:700;color:var(--g)">🧠 SIREN Pattern erkannt:</div>
+        <div style="font-size:9px;color:var(--td);margin-top:2px">${e.pat}</div>
+      </div>`:`<div style="padding:6px 8px;background:var(--s2);border-radius:6px;font-size:8px;color:var(--tm)">📊 Baseline-Daten sammeln... kein neues Muster.</div>`}
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <div style="font-size:8px;color:var(--td)">Muster gesamt: <strong style="color:var(--g)">${e.learns}</strong></div>
+        <div style="font-size:8px;color:var(--td)">Genauigkeit: <strong style="color:var(--g)">${acc}%</strong></div>
+      </div>
+    </div>
+  </div>`;
+  const countEl=document.getElementById('envLearnCount');if(countEl)countEl.textContent=e.learns;
+  const barEl=document.getElementById('envLearnBar');if(barEl)barEl.style.width=(e.learns/maxLearns*100)+'%';
+  const accEl=document.getElementById('envAccuracy');if(accEl)accEl.textContent=acc+'%';
+}
+function setEnvMonth(m){envMonth=m;renderEnvTimeline()}
+function toggleEnvAnim(){
+  const btn=document.getElementById('envPlayBtn');
+  if(envPlaying){envPlaying=false;if(envAnimId)clearInterval(envAnimId);envAnimId=null;if(btn)btn.textContent='▶ Play';return}
+  envPlaying=true;if(btn)btn.textContent='⏸ Pause';
+  envAnimId=setInterval(()=>{envMonth++;if(envMonth>=12){envMonth=11;envPlaying=false;clearInterval(envAnimId);envAnimId=null;const b=document.getElementById('envPlayBtn');if(b)b.textContent='▶ Play'}renderEnvTimeline()},800);
+}
+function resetEnvAnim(){envMonth=0;envPlaying=false;if(envAnimId)clearInterval(envAnimId);envAnimId=null;const btn=document.getElementById('envPlayBtn');if(btn)btn.textContent='▶ Play';renderEnvTimeline()}
+function renderCompList(){const d=DOMAINS[currentDomain],el=document.getElementById('compList');if(!el)return;el.innerHTML=d.components.map((c,i)=>`<div class="cc ${c.status}${i===selectedComp?' sel':''}" onclick="selectComp(${i})"><div style="display:flex;justify-content:space-between;align-items:center"><div style="display:flex;align-items:center;gap:6px"><span style="font-size:14px">${c.icon}</span><div><div style="font-weight:700;font-size:10px">${c.name}</div><div style="font-size:8px;color:var(--tm);font-family:'JetBrains Mono',monospace">${c.kw} kW</div></div></div><div class="mono" style="font-size:11px;font-weight:700;color:${c.status==='ok'?'var(--gm)':c.status==='warn'?'var(--am)':'var(--rd)'}">${c.status==='ok'?'✓':'⚠'} +${c.drift}%</div></div></div>`).join('')}
+function selectComp(i){selectedComp=i;renderCompList();const c=DOMAINS[currentDomain].components[i];document.getElementById('waveLabel').textContent='Waveform: '+c.name;const wp=document.getElementById('wavePower');wp.textContent=c.kw+' kW';wp.style.color=c.status==='ok'?'#12b76a':c.status==='warn'?'#d97706':'#dc2626';startWave();addAudit('SEL',c.name,'b')}
+function renderRUL(){const d=DOMAINS[currentDomain],el=document.getElementById('rulDisplay');if(!el)return;const bad=d.components.filter(c=>c.status!=='ok');if(!bad.length){el.innerHTML='<div style="text-align:center;padding:12px;font-size:10px;color:var(--gm)">✅ Alle OK</div>';return}el.innerHTML=bad.map(c=>{const rul=c.status==='danger'?Math.round(30-c.drift):Math.round(90-c.drift*2);const col=c.status==='danger'?'var(--rd)':'var(--am)';return`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;margin-bottom:4px;background:${c.status==='danger'?'#dc262606':'#d9770606'};border-radius:8px;border-left:3px solid ${col}"><div><div style="font-size:10px;font-weight:700">${c.name}</div><div style="font-size:8px;color:var(--td)">+${c.drift}%</div></div><div style="text-align:right"><div style="font-size:18px;font-weight:800;font-family:'Syne';color:${col}">${rul}d</div><div style="font-size:7px;color:var(--tm)">RUL</div></div></div>`}).join('')}
+
+// WAVEFORM
+function startWave(){if(waveAnimId)cancelAnimationFrame(waveAnimId);const canvas=document.getElementById('waveCanvas');if(!canvas)return;const ctx=canvas.getContext('2d'),W=2000,H=400;function draw(){const c=DOMAINS[currentDomain].components[selectedComp],t=performance.now()/1000;ctx.clearRect(0,0,W,H);ctx.strokeStyle='#1a2030';ctx.lineWidth=0.5;for(let i=0;i<=10;i++){const y=i*H/10;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}for(let i=0;i<=20;i++){const x=i*W/20;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}const scanX=(t*80)%W;const sg=ctx.createLinearGradient(scanX-60,0,scanX,0);sg.addColorStop(0,'transparent');sg.addColorStop(1,c.status==='ok'?'#12b76a15':c.status==='warn'?'#d9770615':'#dc262615');ctx.fillStyle=sg;ctx.fillRect(scanX-60,0,60,H);const color=c.status==='ok'?'#12b76a':c.status==='warn'?'#d97706':'#dc2626';const noise=c.status==='ok'?1.5:c.status==='warn'?4:8;const jit=c.status==='ok'?0:c.status==='warn'?2:6;const spk=c.status==='ok'?0:c.status==='warn'?0.003:0.01;const freq=(c.wFreq||1.5)*0.8,amp=H*0.25;ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=c.status==='ok'?2:2.5;ctx.shadowColor=color;ctx.shadowBlur=c.status==='ok'?4:c.status==='warn'?8:14;for(let x=0;x<W;x++){const ph=(x/W)*Math.PI*2*freq+t*2;let y=H/2+Math.sin(ph)*amp+Math.sin(ph*2.3+t)*amp*0.15+(Math.random()-0.5)*noise*2;if(jit>0)y+=(Math.random()-0.5)*jit;if(Math.random()<spk)y+=(Math.random()-0.5)*amp*0.8;if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}ctx.stroke();ctx.shadowBlur=0;const pw=c.wBase+Math.sin(t*freq)*(c.wAmp||100)+(Math.random()-0.5)*noise*50;ctx.fillStyle=color;ctx.font='bold 24px "JetBrains Mono"';ctx.textAlign='right';ctx.fillText((pw/1000).toFixed(2)+' kW',W-20,35);ctx.font='12px "JetBrains Mono"';ctx.fillStyle='#94a3b8';ctx.fillText(c.status==='ok'?'NORMAL':c.status==='warn'?'WARNING +'+c.drift+'%':'CRITICAL +'+c.drift+'%',W-20,55);waveAnimId=requestAnimationFrame(draw)}draw()}
+// TAB 1: INTELLIGENZ
+function renderTab1(){const d=DOMAINS[currentDomain];
+let h=`<div class="g1"><div class="crd"><div class="ct">🔍 So funktioniert SIREN · ${d.name}</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">`;
+[{n:'1',t:'CT-Klemmen',d:'EUR 8/Stück. Kein Eingriff.',e:'🔌'},{n:'2',t:'Lernen',d:'14 Tage Baseline.',e:'📚'},{n:'3',t:'Erkennen',d:'Kontextbereinigte Drift-Erkennung.',e:'🎯'},{n:'4',t:'Handeln',d:'HEARTBEAT → WARNING → ESCALATION.',e:'🔧'}].forEach(s=>{h+=`<div style="background:var(--s2);border-radius:10px;padding:12px;text-align:center;border:1px solid var(--bd)"><div style="font-size:24px;margin-bottom:6px">${s.e}</div><div style="width:22px;height:22px;border-radius:50%;background:var(--g);color:white;font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;margin-bottom:4px">${s.n}</div><div style="font-size:10px;font-weight:700;margin-bottom:3px">${s.t}</div><div style="font-size:8px;color:var(--td);line-height:1.4">${s.d}</div></div>`});
+h+=`</div></div><div class="crd"><div class="ct">📐 Analyse-Stufen</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;text-align:center">`;
+[{f:'STUFE 1',t:'Monitoring',d:'Basic Drift'},{f:'STUFE 2',t:'Diagnostik',d:'Waveform'},{f:'STUFE 3',t:'Prädiktion',d:'RUL + Match'},{f:'STUFE 4',t:'Fleet Intel',d:'Batch + FW'}].forEach(f=>{h+=`<div style="padding:10px;background:var(--s2);border-radius:10px;border:1px solid var(--bd)"><div style="font-size:10px;font-weight:800;color:var(--g)">${f.f}</div><div style="font-size:9px;font-weight:600">${f.t}</div><div style="font-size:8px;color:var(--td)">${f.d}</div></div>`});
+h+=`</div><div style="margin-top:6px;font-size:7px;color:var(--tm);text-align:center;font-family:'JetBrains Mono',monospace">Patent Pending 63/983,192</div></div>`;
+h+=`<div class="crd"><div class="ct">📖 Szenarien · ${d.name}</div></div>`;
+d.scenarios.forEach(sc=>{
+  h+=`<div class="sc-card" style="border-color:#0a684718"><div class="sc-head"><div class="sc-emoji">${sc.emoji}</div><div><div class="sc-title">${sc.title}</div><div class="sc-sub">${sc.sub}</div></div></div><div class="sc-timeline">`;
+  sc.timeline.forEach(ev=>{
+    const tc=ev.tier==='heartbeat'?'var(--gm)':ev.tier==='warning'?'var(--am)':ev.tier==='escalation'?'var(--rd)':ev.tier==='learning'?'var(--bl)':ev.tier==='resolved'?'var(--g)':'var(--tm)';
+    const bg=ev.tier==='heartbeat'?'#12b76a08':ev.tier==='warning'?'#d9770608':ev.tier==='escalation'?'#dc262608':ev.tier==='learning'?'#2563eb08':ev.tier==='resolved'?'#0a684708':'transparent';
+    h+=`<div style="font-size:9px;font-weight:${ev.tier!=='info'?'700':'400'};color:${tc};font-family:'JetBrains Mono',monospace">${ev.time}</div><div style="padding:4px 8px;border-radius:6px;background:${bg};border-left:2px solid ${tc}">${ev.text}</div>`;
+  });
+  h+=`</div><div class="sc-insight green">${sc.insight.text}</div></div>`;
+});
+h+=`<div class="crd"><div class="ct">🧠 Lerneffekt</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;text-align:center">`;
+[{p:'TAG 1–14',v:'60%',c:'var(--am)'},{p:'MONAT 1–3',v:'82%',c:'var(--bl)'},{p:'MONAT 3–12',v:'94%',c:'var(--g)'},{p:'JAHR 2+',v:'99%',c:'var(--g)'}].forEach(l=>{h+=`<div style="padding:10px;background:var(--s2);border-radius:10px;border:1px solid var(--bd)"><div style="font-size:8px;color:var(--tm);font-weight:600">${l.p}</div><div style="font-size:22px;font-weight:800;font-family:'Syne';color:${l.c}">${l.v}</div></div>`});
+h+=`</div><div style="margin-top:8px;padding:8px;background:var(--s2);border-radius:8px;font-size:9px;color:var(--td);text-align:center">Jeder bestätigte Ausfall = neues Trainingsmuster. Nach 2 Jahren: unschlagbare Prädiktionsqualität.</div></div>`;
+// DIFFERENTIAL DIAGNOSIS (Claim 21)
+const badComps=d.components.filter(c=>c.status!=='ok');
+const diagLevel=badComps.length===0?'fleet-ok':badComps.length===1?'component':badComps.length<=3?'system':'fleet';
+const diagColor=diagLevel==='fleet-ok'?'var(--g)':diagLevel==='component'?'var(--am)':diagLevel==='system'?'var(--rd)':'var(--rd)';
+h+=`<div class="crd"><div class="ct">🔍 Differential Diagnosis — Claim 21</div>
+<div style="font-size:9px;color:var(--td);margin-bottom:10px">Ist das Problem lokal, systemisch oder fleet-weit? SIREN isoliert die Ursache automatisch.</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
+  <div style="padding:12px;background:${diagLevel==='component'?'#d9770610':'var(--s2)'};border-radius:10px;border:2px solid ${diagLevel==='component'?'var(--am)':'var(--bd)'};text-align:center">
+    <div style="font-size:20px;margin-bottom:4px">🔩</div>
+    <div style="font-size:10px;font-weight:800;color:${diagLevel==='component'?'var(--am)':'var(--tm)'}">KOMPONENTE</div>
+    <div style="font-size:8px;color:var(--td);margin-top:2px">1 Teil driftet, Rest OK</div>
+    ${diagLevel==='component'?'<div style="margin-top:4px;font-size:8px;font-weight:700;color:var(--am)">◀ AKTIV</div>':''}
+  </div>
+  <div style="padding:12px;background:${diagLevel==='system'?'#dc262610':'var(--s2)'};border-radius:10px;border:2px solid ${diagLevel==='system'?'var(--rd)':'var(--bd)'};text-align:center">
+    <div style="font-size:20px;margin-bottom:4px">⚙️</div>
+    <div style="font-size:10px;font-weight:800;color:${diagLevel==='system'?'var(--rd)':'var(--tm)'}">SYSTEM</div>
+    <div style="font-size:8px;color:var(--td);margin-top:2px">Mehrere Teile korreliert</div>
+    ${diagLevel==='system'?'<div style="margin-top:4px;font-size:8px;font-weight:700;color:var(--rd)">◀ AKTIV</div>':''}
+  </div>
+  <div style="padding:12px;background:${diagLevel==='fleet'?'#dc262610':'var(--s2)'};border-radius:10px;border:2px solid ${diagLevel==='fleet'?'var(--rd)':'var(--bd)'};text-align:center">
+    <div style="font-size:20px;margin-bottom:4px">🌐</div>
+    <div style="font-size:10px;font-weight:800;color:${diagLevel==='fleet'?'var(--rd)':'var(--tm)'}">FLEET</div>
+    <div style="font-size:8px;color:var(--td);margin-top:2px">Muster über Standorte</div>
+    ${diagLevel==='fleet'?'<div style="margin-top:4px;font-size:8px;font-weight:700;color:var(--rd)">◀ AKTIV</div>':''}
+  </div>
+</div>
+${badComps.length>0?'<div style="padding:10px;background:'+(diagLevel==='component'?'#d9770608':'#dc262608')+';border-radius:8px;border-left:3px solid '+diagColor+'"><div style="font-size:9px;font-weight:700;color:'+diagColor+';margin-bottom:4px">Diagnose: '+(diagLevel==='component'?'Isoliertes Komponentenproblem':diagLevel==='system'?'Systemische Korrelation — mehrere Komponenten betroffen':'Fleet-weites Muster erkannt')+'</div><div style="font-size:8px;color:var(--td);line-height:1.5">'+badComps.map(c=>'<span style="color:'+diagColor+'">'+c.icon+'</span> '+c.name+' (+'+c.drift+'%)').join(' · ')+'<br>'+(diagLevel==='component'?'→ Lokale Wartung ausreichend. Kein Systemrisiko.':diagLevel==='system'?'→ Gemeinsame Ursache prüfen: Versorgung, Temperatur, Firmware.':'→ Fleet-Alert: Batch-Problem oder Firmware-Bug wahrscheinlich.')+'</div></div>':'<div style="padding:10px;background:#0a684708;border-radius:8px;text-align:center;font-size:10px;color:var(--g)">✅ Alle Komponenten im Normbereich. Keine Diagnose erforderlich.</div>'}
+</div></div>`;
+document.getElementById('v1').innerHTML=h}
+
+// TAB 2: FRÜHWARNUNG
+function renderTab2(){const d=DOMAINS[currentDomain];
+let h=`<div class="g2"><div class="crd"><div class="ct">🔧 Komponenten-Status · ${d.name}</div></div>`;
+d.components.forEach(c=>{const ic=c.status==='ok'?'ew-ok':c.status==='warn'?'ew-warn':'ew-crit';const col=c.status==='ok'?'var(--gm)':c.status==='warn'?'var(--am)':'var(--rd)';
+h+=`<div class="ew-card"><div class="ew-icon ${ic}">${c.icon}</div><div><div style="font-weight:700;font-size:11px">${c.name}</div><div style="font-size:9px;color:var(--td)">${c.kw} kW</div></div><div class="mono" style="font-size:14px;font-weight:700;color:${col};text-align:center">+${c.drift}%</div><div style="font-size:9px;color:var(--td);text-align:right">${c.status==='ok'?'<span style="color:var(--gm)">✓ Normal</span>':c.status==='warn'?'<strong style="color:var(--am)">⚠ WARNING</strong>':'<strong style="color:var(--rd)">🔴 ESCALATION</strong>'}</div></div>`});
+h+=`<div class="crd"><div class="ct">🛡️ SIREN vs. Sensoren — Moat</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<div style="padding:14px;background:#dc262606;border-radius:12px;border:1px solid #dc262618"><div style="font-size:10px;font-weight:800;color:var(--rd);margin-bottom:8px">❌ Klassisch: Sensoren</div><div style="font-size:10px;color:var(--td);line-height:1.6">EUR 800–3.000/Sensor × 4–8/Maschine.</div><div style="margin-top:8px;padding:6px 10px;background:#dc262608;border-radius:6px;font-size:9px;font-family:'JetBrains Mono';color:var(--rd)">8 Maschinen = <strong>EUR 80'000</strong></div></div>
+<div style="padding:14px;background:#0a684706;border-radius:12px;border:1px solid #0a684718"><div style="font-size:10px;font-weight:800;color:var(--g);margin-bottom:8px">✅ SIREN: CT-Klemmen</div><div style="font-size:10px;color:var(--td);line-height:1.6">CT-Klemmen + Edge Gateway + Gehäuse. Kein Eingriff in die Maschine.</div><div style="margin-top:8px;padding:6px 10px;background:#0a684708;border-radius:6px;font-size:9px;font-family:'JetBrains Mono';color:var(--g)">8 Maschinen = <strong>EUR ${d.hwPerMach*8}</strong></div></div>
+</div></div></div>`;
+document.getElementById('v2').innerHTML=h}
+// TAB 3: BUSINESS CASE
+function renderTab3(){const d=DOMAINS[currentDomain],o=getOEM();
+document.getElementById('v3').innerHTML=`<div class="g3">
+<div class="crd" style="border-color:var(--g);background:linear-gradient(135deg,#0a684704,var(--s))">
+  <div class="ct" style="color:var(--g)">💰 Endkunde — Ersparnis pro Jahr</div>
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;padding:10px 14px;background:var(--s2);border:1.5px solid var(--bd);border-radius:10px">
+    <div class="biz-input"><span>🏭</span><input type="number" id="bizMach" value="8" min="1" max="500" oninput="calcAll()"><span>Maschinen</span></div>
+    <div style="margin-left:auto;font-size:9px;color:var(--tm);font-family:'JetBrains Mono'" id="bizInfo"></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div style="padding:14px;background:#dc262606;border-radius:12px;border:1px solid #dc262618"><div style="font-size:10px;font-weight:800;color:var(--rd);margin-bottom:8px">❌ OHNE SIREN / Jahr</div><div id="bizOhne"></div></div>
+    <div style="padding:14px;background:#0a684706;border-radius:12px;border:1px solid #0a684718"><div style="font-size:10px;font-weight:800;color:var(--g);margin-bottom:8px">✅ MIT SIREN / Jahr</div><div id="bizMit"></div></div>
+  </div>
+  <div style="margin-top:14px;padding:16px;background:linear-gradient(135deg,#0a684708,#0a684712);border-radius:12px;border:1.5px solid #0a684720;text-align:center">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--g);font-weight:700">NETTO-ERSPARNIS / JAHR</div>
+    <div style="font-size:42px;font-weight:800;font-family:'Syne';color:var(--g)" id="bizNet">—</div>
+    <div style="display:flex;justify-content:center;gap:20px;margin-top:6px">
+      <div style="font-size:10px;color:var(--td)">ROI: <strong style="color:var(--g)" id="bizROI">—</strong></div>
+      <div style="font-size:10px;color:var(--td)">Amortisation: <strong style="color:var(--g)" id="bizAmort">—</strong></div>
+    </div>
+  </div>
+</div>
+<div class="crd" style="border-color:var(--g);background:linear-gradient(135deg,#0a684704,var(--s))">
+  <div class="ct" style="color:var(--g)">🏭 OEM-Perspektive: ${o.label}</div>
+  <div style="font-size:11px;color:var(--td);margin-bottom:12px;line-height:1.6">${o.strat1}</div>
+  <div style="padding:14px;background:var(--s2);border-radius:12px;border:1px solid var(--bd);margin-bottom:12px">
+    <div style="font-size:10px;font-weight:700;margin-bottom:10px">💰 Was bringt SIREN dem OEM?</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+      <div style="padding:10px;background:var(--s);border-radius:10px;border:1px solid var(--bd)">
+        <div style="font-size:7px;text-transform:uppercase;letter-spacing:1px;color:var(--tm);font-weight:600">HARDWARE-KOSTEN (EINMALIG)</div>
+        <div style="font-size:20px;font-weight:800;font-family:'Syne';color:var(--tx)">EUR ${d.hwPerMach}</div>
+        <div style="font-size:8px;color:var(--td)">CT-Klemmen pro ${d.perMachine.label}</div>
+      </div>
+      <div style="padding:10px;background:var(--s);border-radius:10px;border:1px solid var(--bd)">
+        <div style="font-size:7px;text-transform:uppercase;letter-spacing:1px;color:var(--g);font-weight:600">SERVICE-PREIS AN KUNDEN</div>
+        <div style="font-size:20px;font-weight:800;font-family:'Syne';color:var(--g)">EUR ${d.licPerYear}/Jahr</div>
+        <div style="font-size:8px;color:var(--td)">Predictive Service pro ${d.perMachine.label}</div>
+      </div>
+    </div>
+    <div style="padding:10px;background:#0a684708;border-radius:10px;border:1px solid #0a684718;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:7px;text-transform:uppercase;letter-spacing:1px;color:var(--g);font-weight:600">OEM BRUTTO-MARGE / MASCHINE / JAHR</div>
+        <div style="font-size:8px;color:var(--td);margin-top:2px">Service-Preis minus HW-Amortisation (Jahr 1)</div></div>
+        <div style="font-size:24px;font-weight:800;font-family:'Syne';color:var(--g)" id="oemMargin">—</div>
+      </div>
+    </div>
+    <div style="font-size:10px;font-weight:700;margin-bottom:8px">📊 Fleet-Skalierung</div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+      <div><div style="font-size:7px;text-transform:uppercase;letter-spacing:1px;color:var(--tm);font-weight:600;margin-bottom:2px">Installierte Basis</div><input type="number" id="oemMach" value="${o.fleet}" style="width:90px;padding:4px 8px;background:var(--s);border:1.5px solid var(--bd);border-radius:6px;font-family:'JetBrains Mono';font-size:11px" oninput="calcAll()"></div>
+      <div><div style="font-size:7px;text-transform:uppercase;letter-spacing:1px;color:var(--tm);font-weight:600;margin-bottom:2px">Adoption %</div><input type="number" id="oemAdopt" value="30" style="width:50px;padding:4px 8px;background:var(--s);border:1.5px solid var(--bd);border-radius:6px;font-family:'JetBrains Mono';font-size:11px" oninput="calcAll()"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center">
+      <div style="background:var(--s);padding:12px;border-radius:10px;border:1px solid var(--bd)"><div style="font-size:8px;color:var(--tm);font-weight:600">ADOPTIERTE SYSTEME</div><div style="font-size:20px;font-weight:800;font-family:'Syne';color:var(--bl)" id="oemAdoptN">—</div></div>
+      <div style="background:var(--s);padding:12px;border-radius:10px;border:1px solid var(--bd)"><div style="font-size:8px;color:var(--tm);font-weight:600">NEUER SERVICE-UMSATZ/JAHR</div><div style="font-size:20px;font-weight:800;font-family:'Syne';color:var(--g)" id="oemRev">—</div></div>
+      <div style="background:var(--s);padding:12px;border-radius:10px;border:1px solid var(--bd)"><div style="font-size:8px;color:var(--tm);font-weight:600">OEM-MARGE/JAHR</div><div style="font-size:20px;font-weight:800;font-family:'Syne';color:var(--g)" id="oemKeep">—</div></div>
+    </div>
+  </div>
+  <div style="padding:14px;background:var(--s2);border-radius:12px;border:1px solid var(--bd);margin-bottom:12px">
+    <div style="font-size:10px;font-weight:700;margin-bottom:10px">🤝 Warum kauft der Kunde?</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div style="padding:10px;background:#dc262606;border-radius:10px;border:1px solid #dc262615">
+        <div style="font-size:8px;font-weight:700;color:var(--rd);margin-bottom:4px">❌ Ohne SIREN</div>
+        <div style="font-size:18px;font-weight:800;font-family:'Syne';color:var(--rd)" id="oemCustOhne">—</div>
+        <div style="font-size:8px;color:var(--td)">Ungeplante Kosten / ${d.perMachine.label} / Jahr</div>
+      </div>
+      <div style="padding:10px;background:#0a684706;border-radius:10px;border:1px solid #0a684718">
+        <div style="font-size:8px;font-weight:700;color:var(--g);margin-bottom:4px">✅ Mit SIREN</div>
+        <div style="font-size:18px;font-weight:800;font-family:'Syne';color:var(--g)" id="oemCustMit">—</div>
+        <div style="font-size:8px;color:var(--td)">Service + Hardware + Wartung / Jahr</div>
+      </div>
+    </div>
+    <div style="margin-top:8px;padding:8px;background:#0a684708;border-radius:8px;text-align:center">
+      <div style="font-size:8px;color:var(--tm);font-weight:600">KUNDE SPART</div>
+      <div style="font-size:22px;font-weight:800;font-family:'Syne';color:var(--g)" id="oemCustSave">—</div>
+      <div style="font-size:8px;color:var(--td)">pro ${d.perMachine.label} / Jahr — ROI <strong id="oemCustROI">—</strong></div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div style="padding:12px;background:#dc262606;border-radius:10px;border:1px solid #dc262615">
+      <div style="font-size:9px;font-weight:700;color:var(--rd);margin-bottom:6px">❌ Sensor-Alternative</div>
+      <div style="font-size:9px;color:var(--td);line-height:1.5">EUR 800–3.000 pro Sensor × 4–8 pro ${d.perMachine.label}. Installation, Kalibrierung, Wartung. Kabelgebunden.</div>
+      <div style="font-size:16px;font-weight:800;font-family:'Syne';color:var(--rd);margin-top:6px">EUR 4.800–24.000</div>
+      <div style="font-size:7px;color:var(--td)">pro ${d.perMachine.label} (Hardware allein)</div>
+    </div>
+    <div style="padding:12px;background:#0a684706;border-radius:10px;border:1px solid #0a684718">
+      <div style="font-size:9px;font-weight:700;color:var(--g);margin-bottom:6px">✅ SIREN: Strom als Sensor</div>
+      <div style="font-size:9px;color:var(--td);line-height:1.5">CT-Klemme EUR ${d.hwPerMach}. Kein Eingriff. Kein Kabel. 20+ Jahre Lebensdauer. Sofort skalierbar.</div>
+      <div style="font-size:16px;font-weight:800;font-family:'Syne';color:var(--g);margin-top:6px">EUR ${d.hwPerMach}</div>
+      <div style="font-size:7px;color:var(--td)">pro ${d.perMachine.label} (einmalig)</div>
+    </div>
+  </div>
+  <div style="margin-top:10px;padding:8px;background:#0a684708;border-radius:8px;font-size:10px;color:var(--td);border:1px solid #0a684715;line-height:1.5">✅ <strong style="color:var(--g)">Win-Win:</strong> OEM erschliesst neues Service-Revenue. Kunde spart Tausende pro Jahr. Sensor-Nachrüstung wird überflüssig.</div>
+</div>
+</div>`;
+calcAll()}
+
+function calcAll(){
+  const d=DOMAINS[currentDomain],m=parseInt(document.getElementById('bizMach')?.value||8);
+  const p=d.perMachine,fmt=n=>'EUR '+n.toLocaleString('de-DE'),fmtM=v=>v>=1e6?'EUR '+(v/1e6).toFixed(1)+'M':'EUR '+Math.round(v/1000)+'k';
+  const ohneD=p.downtime*m,ohneE=p.emergency*m,ohneF=p.folge*m,ohneT=ohneD+ohneE+ohneF;
+  const mitL=d.licPerYear*m,mitH=d.hwPerMach*m+120,mitW=m*600,mitT=mitL+mitH+mitW;
+  const net=ohneT-mitT,roi=Math.round(net/mitT*100),amort=Math.max(1,Math.ceil(mitT/(net/12)));
+  const el=id=>document.getElementById(id);
+  if(el('bizInfo'))el('bizInfo').textContent=m*6+' Komponenten · '+getOEM().label;
+  if(el('bizOhne'))el('bizOhne').innerHTML=`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #dc262612;font-size:10px"><span>Stillstände</span><span class="mono" style="font-weight:700;color:var(--rd)">${fmt(ohneD)}</span></div><div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #dc262612;font-size:10px"><span>Notfälle</span><span class="mono" style="font-weight:700;color:var(--rd)">${fmt(ohneE)}</span></div><div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #dc262612;font-size:10px"><span>Folgeschäden</span><span class="mono" style="font-weight:700;color:var(--rd)">${fmt(ohneF)}</span></div><div style="display:flex;justify-content:space-between;padding:6px 0;font-size:12px;font-weight:800"><span>Total</span><span class="mono" style="color:var(--rd)">${fmt(ohneT)}</span></div>`;
+  if(el('bizMit'))el('bizMit').innerHTML=`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #0a684712;font-size:10px"><span>SIREN Service</span><span class="mono" style="font-weight:700">${fmt(mitL)}</span></div><div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #0a684712;font-size:10px"><span>Hardware</span><span class="mono" style="font-weight:700">${fmt(mitH)}</span></div><div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #0a684712;font-size:10px"><span>Geplante Wartung</span><span class="mono" style="font-weight:700">${fmt(mitW)}</span></div><div style="display:flex;justify-content:space-between;padding:6px 0;font-size:12px;font-weight:800"><span>Total</span><span class="mono" style="color:var(--g)">${fmt(mitT)}</span></div>`;
+  if(el('bizNet'))el('bizNet').textContent=fmt(net);
+  if(el('bizROI'))el('bizROI').textContent=roi+'%';
+  if(el('bizAmort'))el('bizAmort').textContent=amort<=1?'< 1 Monat':amort+' Monate';
+  // OEM calc
+  const om=parseInt(el('oemMach')?.value||getOEM().fleet);
+  const oa=(parseInt(el('oemAdopt')?.value||30))/100;
+  const sl=d.licPerYear,hw=d.hwPerMach;
+  const margin1=sl-hw,marginN=sl;
+  const adoptN=Math.round(om*oa),rev=adoptN*sl,totalMargin=adoptN*marginN;
+  const custOhne=p.downtime+p.emergency+p.folge,custMit=sl+hw+600,custSave=custOhne-custMit,custROI=Math.round(custSave/custMit*100);
+  if(el('oemMargin'))el('oemMargin').textContent='EUR '+marginN;
+  if(el('oemAdoptN'))el('oemAdoptN').textContent=adoptN.toLocaleString('de-DE');
+  if(el('oemRev'))el('oemRev').textContent=fmtM(rev);
+  if(el('oemKeep'))el('oemKeep').textContent=fmtM(totalMargin);
+  if(el('oemCustOhne'))el('oemCustOhne').textContent=fmt(custOhne);
+  if(el('oemCustMit'))el('oemCustMit').textContent=fmt(custMit);
+  if(el('oemCustSave'))el('oemCustSave').textContent=fmt(custSave);
+  if(el('oemCustROI'))el('oemCustROI').textContent=custROI+'%'}
+// TAB 4: FLEET DASHBOARD
+function renderTab4(){const d=DOMAINS[currentDomain],o=getOEM();
+const totalTix=d.tickets.length,p1=d.tickets.filter(t=>t.prio===1).length,totalSav=d.tickets.reduce((s,t)=>s+t.sav,0);
+document.getElementById('v4').innerHTML=`<div class="g4">
+<div class="fleet-stats">
+  <div class="fs"><div class="fs-v" style="color:var(--g)">${o.fleet.toLocaleString('de-DE')}</div><div class="fs-l">${o.fleetLabel}</div></div>
+  <div class="fs"><div class="fs-v" style="color:var(--rd)">${p1}</div><div class="fs-l">P1 Kritisch</div></div>
+  <div class="fs"><div class="fs-v" style="color:var(--am)">${totalTix-p1}</div><div class="fs-l">P2/P3 Warnung</div></div>
+  <div class="fs"><div class="fs-v" style="color:var(--g)">EUR ${Math.round(totalSav/1000)}k</div><div class="fs-l">Vermeidbare Kosten</div></div>
+  <div class="fs"><div class="fs-v" style="color:var(--bl)">−52%</div><div class="fs-l">Weniger km/Techniker</div></div>
+</div>
+<div class="crd"><div class="ct">🗺️ Fleet Map — ${o.label} Service Region</div>
+  <div id="fleetMap" style="height:360px;border-radius:10px;overflow:hidden;border:1px solid var(--bd)"></div>
+  <div style="display:flex;gap:12px;margin-top:8px;font-size:8px;color:var(--tm);justify-content:center;flex-wrap:wrap">
+    <span>🔴 P1</span><span>🟡 P2</span><span>🔵 P3</span><span>🟢 Normal</span><span>🚐 Techniker-Route</span>
+  </div>
+  <div style="margin-top:8px;padding:8px 12px;background:#0a684706;border-radius:8px;font-size:10px;border:1px solid #0a684712">
+    🚐 <strong>${d.tickets[0]?.tech||'Techniker'} — Optimierte Route morgen:</strong> <span style="color:var(--tm);font-family:'JetBrains Mono',monospace" id="routeInfo">Berechne...</span>
+  </div>
+</div>
+<div class="crd"><div class="ct">🎫 Service-Tickets — SIREN-generiert</div>
+  ${d.tickets.map(t=>`<div class="ticket ${t.prio===1?'t-crit':t.prio===2?'t-warn':'t-plan'}">
+    <div class="t-prio ${t.prio===1?'t-p1':t.prio===2?'t-p2':'t-p3'}">P${t.prio}</div>
+    <div><div class="t-farm">${t.firm}</div><div class="t-loc">📍 ${t.loc}</div><div class="t-issue"><strong style="color:${t.prio===1?'var(--rd)':'var(--am)'}">${t.comp}:</strong> ${t.issue}</div></div>
+    <div class="t-comp"><strong>${t.comp}</strong><div class="t-mach">${t.mach}</div></div>
+    <div class="t-tech"><div style="font-size:7px;color:var(--tm)">TECHNIKER</div><div style="font-weight:700;font-size:10px">${t.tech}</div><div style="font-size:8px;color:var(--td)">${t.when}</div></div>
+    <div class="t-action"><button class="t-btn" style="background:${t.prio===1?'#dc262610':'var(--s2)'};color:${t.prio===1?'var(--rd)':'var(--tx)'}">⚡ ${t.prio<=2?'Einplanen':'Beobachten'}</button>${t.sav?`<div style="font-size:7px;color:var(--tm);margin-top:3px">Spart EUR ${t.sav.toLocaleString('de-DE')}</div>`:''}</div>
+  </div>`).join('')}
+</div>
+<div class="crd" style="border-color:var(--g);background:linear-gradient(135deg,#0a684704,var(--s))">
+  <div class="ct" style="color:var(--g)">🚗 Routenoptimierung — Reaktiv vs. Prädiktiv</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <div><div style="font-size:11px;font-weight:700;margin-bottom:8px;color:var(--rd)">❌ Ohne SIREN (reaktiv)</div>
+      <div style="font-size:10px;color:var(--td);line-height:1.8">
+        <div style="padding:4px 0;border-bottom:1px solid var(--bd)">08:30 — Notfall ${d.tickets[0]?.firm||'Firma A'}</div>
+        <div style="padding:4px 0;border-bottom:1px solid var(--bd)">11:00 — Zurück ins Depot, Teile holen</div>
+        <div style="padding:4px 0;border-bottom:1px solid var(--bd)">13:00 — Zurück, reparieren</div>
+        <div style="padding:4px 0">⛽ 142 km · ⏱️ 7h · 💰 EUR 1'400</div>
+      </div>
+    </div>
+    <div><div style="font-size:11px;font-weight:700;margin-bottom:8px;color:var(--g)">✅ Mit SIREN (prädiktiv)</div>
+      <div style="font-size:10px;color:var(--td);line-height:1.8">
+        <div style="padding:4px 0;border-bottom:1px solid var(--bd)">09:00 — ${d.tickets[0]?.firm||'Firma A'} (SIREN P1)</div>
+        <div style="padding:4px 0;border-bottom:1px solid var(--bd)">11:30 — ${d.tickets[1]?.firm||'Firma B'} (SIREN P1, Route)</div>
+        <div style="padding:4px 0;border-bottom:1px solid var(--bd)">14:00 — Fertig. ${Math.min(d.tickets.length,3)} Einsätze, kein Notfall.</div>
+        <div style="padding:4px 0">⛽ 68 km · ⏱️ 5h · 💰 EUR 620 · <strong style="color:var(--g)">${Math.min(d.tickets.length,3)} Probleme gelöst</strong></div>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:12px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;text-align:center">
+    <div style="background:var(--s);padding:10px;border-radius:8px;border:1px solid var(--bd)"><div style="font-size:22px;font-weight:800;font-family:'Syne';color:var(--g)">−52%</div><div style="font-size:8px;color:var(--td)">Weniger km</div></div>
+    <div style="background:var(--s);padding:10px;border-radius:8px;border:1px solid var(--bd)"><div style="font-size:22px;font-weight:800;font-family:'Syne';color:var(--g)">−75%</div><div style="font-size:8px;color:var(--td)">Weniger Notfälle</div></div>
+    <div style="background:var(--s);padding:10px;border-radius:8px;border:1px solid var(--bd)"><div style="font-size:22px;font-weight:800;font-family:'Syne';color:var(--g)">+3x</div><div style="font-size:8px;color:var(--td)">Einsätze/Tour</div></div>
+    <div style="background:var(--s);padding:10px;border-radius:8px;border:1px solid var(--bd)"><div style="font-size:22px;font-weight:800;font-family:'Syne';color:var(--g)">EUR ${Math.round(totalSav/1000)}k</div><div style="font-size:8px;color:var(--td)">Gespart/Monat</div></div>
+  </div>
+</div></div>`}
+
+// FLEET MAP
+function initFleetMap(){
+  if(fleetMapInstance){fleetMapInstance.remove();fleetMapInstance=null}
+  const mapEl=document.getElementById('fleetMap');if(!mapEl)return;
+  const d=DOMAINS[currentDomain],o=getOEM();
+  const center=d.tickets.length?[d.tickets[0].lat,d.tickets[0].lng]:[o.depot.lat,o.depot.lng];
+  const map=L.map('fleetMap',{zoomControl:true,scrollWheelZoom:true}).setView(center,9);
+  fleetMapInstance=map;
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM',maxZoom:18,opacity:0.9}).addTo(map);
+  setTimeout(()=>map.invalidateSize(),200);setTimeout(()=>map.invalidateSize(),600);
+  function mkI(c,s){return L.divIcon({className:'',html:`<div style="width:${s}px;height:${s}px;border-radius:50%;background:${c};border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.3)"></div>`,iconSize:[s,s],iconAnchor:[s/2,s/2]})}
+  // Normal dots
+  for(let i=0;i<25;i++){const lt=center[0]+(Math.random()-.5)*0.8,ln=center[1]+(Math.random()-.5)*1.4;L.marker([lt,ln],{icon:mkI('#12b76a',6)}).addTo(map).bindPopup('<b>Normal</b><br><span style="font-size:9px;color:#64748b">Alle OK</span>')}
+  // Ticket markers
+  d.tickets.forEach(t=>{const col=t.prio===1?'#dc2626':t.prio===2?'#d97706':'#2563eb';const sz=t.prio===1?16:t.prio===2?13:10;L.marker([t.lat,t.lng],{icon:mkI(col,sz)}).addTo(map).bindPopup(`<b>${t.firm}</b><br><span style="font-size:9px">${t.loc}</span><br><span style="color:${col};font-weight:600">P${t.prio}: ${t.issue}</span>`)});
+  // Depot
+  L.marker([o.depot.lat,o.depot.lng],{icon:L.divIcon({className:'',html:'<div style="width:24px;height:24px;border-radius:6px;background:#1e293b;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-size:12px">🏭</div>',iconSize:[24,24],iconAnchor:[12,12]})}).addTo(map).bindPopup(`<b>🏭 ${o.depot.name}</b><br><span style="font-size:9px">${o.depot.loc}</span>`);
+  // Route
+  const stops=[[o.depot.lng,o.depot.lat],...d.tickets.slice(0,3).map(t=>[t.lng,t.lat])];
+  if(stops.length>1){const coords=stops.map(c=>c[0]+','+c[1]).join(';');
+    fetch('https://router.project-osrm.org/route/v1/driving/'+coords+'?overview=full&geometries=geojson')
+    .then(r=>r.json()).then(data=>{if(data.routes&&data.routes[0]){const rt=data.routes[0];L.geoJSON(rt.geometry,{style:{color:'#0a6847',weight:4,opacity:.8,dashArray:'8,6'}}).addTo(map);const km=(rt.distance/1000).toFixed(0),min=Math.round(rt.duration/60);document.getElementById('routeInfo').textContent=km+' km · '+min+' Min · '+stops.length+' Stops';
+      L.marker([o.depot.lat,o.depot.lng],{icon:L.divIcon({className:'',html:'<div style="width:28px;height:28px;border-radius:8px;background:#0a6847;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-size:14px">🚐</div>',iconSize:[28,28],iconAnchor:[14,14]}),zIndexOffset:1000}).addTo(map)}})
+    .catch(()=>{document.getElementById('routeInfo').textContent='~68 km · offline';L.polyline(stops.map(c=>[c[1],c[0]]),{color:'#0a6847',weight:3,opacity:.6,dashArray:'8,6'}).addTo(map)})}}
+
+// DEMO BUTTONS
+function demoHealthy(){const d=DOMAINS[currentDomain];d.components.forEach(c=>{c.status='ok';c.drift=Math.round(Math.random()*30)/10});selectedComp=0;renderAll();addAudit('DEMO','All Healthy','g')}
+function demoDrift(){const d=DOMAINS[currentDomain];d.components[2].status='warn';d.components[2].drift=12.4;selectedComp=2;renderAll();addAudit('DEMO','Drift detected','a')}
+function demoFault(){const d=DOMAINS[currentDomain];d.components[5].status='danger';d.components[5].drift=28.0;d.components[2].status='warn';d.components[2].drift=14.2;selectedComp=5;renderAll();addAudit('DEMO','Fault!','r')}
+function demoReset(){const orig=DOMAINS;location.reload()}
+
+// INIT
+init();
+</script></body></html>
