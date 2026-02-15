@@ -92,6 +92,18 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;overf
 .dtag{font-size:6px;color:var(--tm);font-family:'JetBrains Mono',monospace;letter-spacing:1px;padding:0 4px}
 @media(max-width:1100px){.g0{grid-template-columns:1fr}.fleet-stats{grid-template-columns:1fr 1fr}.ticket{grid-template-columns:1fr}.dom-sel{flex-wrap:wrap}.sav-row{grid-template-columns:1fr 1fr}.ew-card{grid-template-columns:1fr}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+@keyframes heroScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes heroPulse{0%,100%{opacity:0.6}50%{opacity:1}}
+.hero{padding:16px 24px;background:linear-gradient(135deg,#0a684708,#2563eb05,#0a684704);border-bottom:1px solid var(--bd);overflow:hidden;position:relative}
+.hero-tag{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:var(--tx);line-height:1.4;margin-bottom:4px}
+.hero-tag em{font-style:normal;color:var(--g)}
+.hero-sub{font-size:10px;color:var(--td);margin-bottom:10px;line-height:1.5}
+.hero-spectrum{display:flex;overflow:hidden;position:relative;mask-image:linear-gradient(90deg,transparent,black 5%,black 95%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,black 5%,black 95%,transparent)}
+.hero-track{display:flex;gap:8px;animation:heroScroll 30s linear infinite;will-change:transform}
+.hero-item{flex-shrink:0;display:flex;align-items:center;gap:5px;padding:4px 10px;background:var(--s);border-radius:20px;border:1px solid var(--bd);font-size:8px;font-weight:600;color:var(--td);white-space:nowrap;transition:all 0.3s}
+.hero-item:hover{border-color:var(--g);color:var(--g);transform:scale(1.05)}
+.hero-item .hi-icon{font-size:13px}
+.hero-patent{position:absolute;right:24px;top:50%;transform:translateY(-50%);font-size:7px;font-family:'JetBrains Mono',monospace;color:var(--tm);text-align:right;line-height:1.5}
 @keyframes chainSlide{from{opacity:0;transform:translateY(-8px);max-height:0}to{opacity:1;transform:translateY(0);max-height:80px}}
 .chain-entry{animation:chainSlide 0.4s ease-out;border-left:2px solid var(--g);padding:4px 6px;margin-bottom:3px;background:var(--s2);border-radius:0 4px 4px 0;font-size:7px;line-height:1.4}
 .chain-entry.warn{border-left-color:var(--am)}.chain-entry.crit{border-left-color:var(--rd)}
@@ -108,6 +120,49 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;overf
     <div class="dom-sel" id="oemToggle" style="border-color:#0a684730"></div>
     <div class="live-b"><div class="ldot"></div>LIVE</div>
     <div class="mono" style="font-size:11px;color:var(--td)" id="clk">--:--:--</div>
+  </div>
+</div>
+<div class="hero">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start">
+    <div style="flex:1">
+      <div class="hero-tag">Alles was Strom braucht, hat eine <em>Signatur</em>.<br>Wenn sich die Signatur ändert, ändert sich etwas.</div>
+      <div class="hero-sub">SIREN erkennt es — Wochen bevor es ausfällt. Ohne Sensoren. Nur Strom.</div>
+    </div>
+    <div class="hero-patent">Patent Pending<br>USPTO 63/983,192<br><strong style="color:var(--g)">X-Loop³ Labs 🇨🇭</strong></div>
+  </div>
+  <div class="hero-spectrum">
+    <div class="hero-track">
+      <div class="hero-item"><span class="hi-icon">🚽</span> Beheizte Toilette</div>
+      <div class="hero-item"><span class="hi-icon">🧊</span> Kühlschrank</div>
+      <div class="hero-item"><span class="hi-icon">💻</span> Server / PC</div>
+      <div class="hero-item"><span class="hi-icon">🏠</span> Wärmepumpe</div>
+      <div class="hero-item"><span class="hi-icon">🛗</span> Aufzug</div>
+      <div class="hero-item"><span class="hi-icon">🏭</span> CNC-Maschine</div>
+      <div class="hero-item"><span class="hi-icon">📦</span> Lager-Roboter</div>
+      <div class="hero-item"><span class="hi-icon">🤖</span> Humanoider Roboter</div>
+      <div class="hero-item"><span class="hi-icon">🏥</span> MRT-Scanner</div>
+      <div class="hero-item"><span class="hi-icon">💨</span> Windturbine</div>
+      <div class="hero-item"><span class="hi-icon">🚂</span> Elektro-Lok</div>
+      <div class="hero-item"><span class="hi-icon">⚡</span> Batterie-Speicher</div>
+      <div class="hero-item"><span class="hi-icon">✈️</span> E-Flugzeug</div>
+      <div class="hero-item"><span class="hi-icon">🚀</span> Raketenturbopumpe</div>
+      <div class="hero-item"><span class="hi-icon">🛰️</span> Satellit</div>
+      <div class="hero-item"><span class="hi-icon">🚽</span> Beheizte Toilette</div>
+      <div class="hero-item"><span class="hi-icon">🧊</span> Kühlschrank</div>
+      <div class="hero-item"><span class="hi-icon">💻</span> Server / PC</div>
+      <div class="hero-item"><span class="hi-icon">🏠</span> Wärmepumpe</div>
+      <div class="hero-item"><span class="hi-icon">🛗</span> Aufzug</div>
+      <div class="hero-item"><span class="hi-icon">🏭</span> CNC-Maschine</div>
+      <div class="hero-item"><span class="hi-icon">📦</span> Lager-Roboter</div>
+      <div class="hero-item"><span class="hi-icon">🤖</span> Humanoider Roboter</div>
+      <div class="hero-item"><span class="hi-icon">🏥</span> MRT-Scanner</div>
+      <div class="hero-item"><span class="hi-icon">💨</span> Windturbine</div>
+      <div class="hero-item"><span class="hi-icon">🚂</span> Elektro-Lok</div>
+      <div class="hero-item"><span class="hi-icon">⚡</span> Batterie-Speicher</div>
+      <div class="hero-item"><span class="hi-icon">✈️</span> E-Flugzeug</div>
+      <div class="hero-item"><span class="hi-icon">🚀</span> Raketenturbopumpe</div>
+      <div class="hero-item"><span class="hi-icon">🛰️</span> Satellit</div>
+    </div>
   </div>
 </div>
 <div class="tabs" id="tabBar"></div>
@@ -692,10 +747,149 @@ function renderTab2(){const d=DOMAINS[currentDomain];
 let h=`<div class="g2"><div class="crd"><div class="ct">🔧 Komponenten-Status · ${d.name}</div></div>`;
 d.components.forEach(c=>{const ic=c.status==='ok'?'ew-ok':c.status==='warn'?'ew-warn':'ew-crit';const col=c.status==='ok'?'var(--gm)':c.status==='warn'?'var(--am)':'var(--rd)';
 h+=`<div class="ew-card"><div class="ew-icon ${ic}">${c.icon}</div><div><div style="font-weight:700;font-size:11px">${c.name}</div><div style="font-size:9px;color:var(--td)">${c.kw} kW</div></div><div class="mono" style="font-size:14px;font-weight:700;color:${col};text-align:center">+${c.drift}%</div><div style="font-size:9px;color:var(--td);text-align:right">${c.status==='ok'?'<span style="color:var(--gm)">✓ Normal</span>':c.status==='warn'?'<strong style="color:var(--am)">⚠ WARNING</strong>':'<strong style="color:var(--rd)">🔴 ESCALATION</strong>'}</div></div>`});
-h+=`<div class="crd"><div class="ct">🛡️ SIREN vs. Sensoren — Moat</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-<div style="padding:14px;background:#dc262606;border-radius:12px;border:1px solid #dc262618"><div style="font-size:10px;font-weight:800;color:var(--rd);margin-bottom:8px">❌ Klassisch: Sensoren</div><div style="font-size:10px;color:var(--td);line-height:1.6">EUR 800–3.000/Sensor × 4–8/Maschine.</div><div style="margin-top:8px;padding:6px 10px;background:#dc262608;border-radius:6px;font-size:9px;font-family:'JetBrains Mono';color:var(--rd)">8 Maschinen = <strong>EUR 80'000</strong></div></div>
-<div style="padding:14px;background:#0a684706;border-radius:12px;border:1px solid #0a684718"><div style="font-size:10px;font-weight:800;color:var(--g);margin-bottom:8px">✅ SIREN: CT-Klemmen</div><div style="font-size:10px;color:var(--td);line-height:1.6">CT-Klemmen + Edge Gateway + Gehäuse. Kein Eingriff in die Maschine.</div><div style="margin-top:8px;padding:6px 10px;background:#0a684708;border-radius:6px;font-size:9px;font-family:'JetBrains Mono';color:var(--g)">8 Maschinen = <strong>EUR ${d.hwPerMach*8}</strong></div></div>
-</div></div></div>`;
+// === FRÜHWARNUNG: WARUM SENSOREN KEINE FRÜHWARNUNG HABEN ===
+const warnComp=d.components.find(c=>c.status==='danger')||d.components.find(c=>c.status==='warn')||d.components[0];
+const warnName=warnComp.name;
+const baseW=Math.round(warnComp.kw*1000);
+
+h+=`<div class="crd" style="border:2px solid var(--g);background:linear-gradient(135deg,#0a684704,var(--s))">
+<div class="ct" style="color:var(--g);font-size:13px">⚡ Warum hat klassische Sensorik KEINE Frühwarnung?</div>
+<div style="font-size:10px;color:var(--td);margin-bottom:14px;line-height:1.6">
+  Klassische Sensoren messen <strong>Symptome</strong> — Vibration, Temperatur, Druck. Sie reagieren erst wenn ein Schwellwert überschritten wird. Es gibt keinen Drift, keine Progression, keine Vorlaufzeit. <strong style="color:var(--rd)">Binär: Grün oder Rot.</strong>
+</div>
+
+<div style="font-size:10px;font-weight:700;margin-bottom:8px;color:var(--tx)">📊 Beispiel: ${warnName} (${warnComp.kw} kW)</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+  <div style="padding:14px;background:#dc262606;border-radius:12px;border:1px solid #dc262618">
+    <div style="font-size:10px;font-weight:800;color:var(--rd);margin-bottom:10px">❌ Klassischer Vibrationssensor</div>
+    <div style="display:grid;gap:6px">
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--gm)"></div>
+        <div style="flex:1;font-size:8px;color:var(--td)">Tag 1–85</div>
+        <div style="font-size:9px;font-weight:700;color:var(--gm)">✓ OK</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--gm)"></div>
+        <div style="flex:1;font-size:8px;color:var(--td)">Tag 86</div>
+        <div style="font-size:9px;font-weight:700;color:var(--gm)">✓ OK</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--gm)"></div>
+        <div style="flex:1;font-size:8px;color:var(--td)">Tag 87</div>
+        <div style="font-size:9px;font-weight:700;color:var(--gm)">✓ OK</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--gm)"></div>
+        <div style="flex:1;font-size:8px;color:var(--td)">Tag 88 — Lager degradiert bereits</div>
+        <div style="font-size:9px;font-weight:700;color:var(--gm)">✓ OK</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--gm)"></div>
+        <div style="flex:1;font-size:8px;color:var(--td)">Tag 89 — Verschleiss sichtbar</div>
+        <div style="font-size:9px;font-weight:700;color:var(--gm)">✓ OK (!)</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--rd)"></div>
+        <div style="flex:1;font-size:8px;font-weight:700;color:var(--rd)">Tag 90 — SCHWELLWERT</div>
+        <div style="font-size:9px;font-weight:700;color:var(--rd)">🔴 ALARM</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:8px;height:8px;border-radius:50%;background:#333"></div>
+        <div style="flex:1;font-size:8px;font-weight:700;color:var(--rd)">Tag 90+ — Stillstand</div>
+        <div style="font-size:9px;font-weight:700;color:var(--rd)">💀 AUSFALL</div>
+      </div>
+    </div>
+    <div style="margin-top:10px;padding:8px;background:#dc262610;border-radius:8px;font-size:8px;color:var(--rd);line-height:1.5;text-align:center">
+      <strong>Vorlaufzeit: 0 Tage</strong><br>
+      Sensor sagt: OK → OK → OK → ALARM → AUSFALL<br>
+      Keine Progression. Keine Warnung. Kein Zeitfenster.
+    </div>
+  </div>
+
+  <div style="padding:14px;background:#0a684706;border-radius:12px;border:1px solid #0a684718">
+    <div style="font-size:10px;font-weight:800;color:var(--g);margin-bottom:10px">✅ SIREN Energy Signature</div>
+    <div style="display:grid;gap:6px">
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--gm)"></div>
+        <div style="flex:1;font-size:8px;color:var(--td)">Tag 1–60 — Baseline: ${baseW}W</div>
+        <div style="font-size:9px;font-weight:700;color:var(--gm)">💚 HEARTBEAT</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--gm)"></div>
+        <div style="flex:1;font-size:8px;color:var(--td)">Tag 65 — ${Math.round(baseW*1.007)}W (+0.7%)</div>
+        <div style="font-size:9px;font-weight:700;color:var(--gm)">💚 Trend erkannt</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--bl)"></div>
+        <div style="flex:1;font-size:8px;color:var(--td)">Tag 70 — ${Math.round(baseW*1.021)}W (+2.1%)</div>
+        <div style="font-size:9px;font-weight:700;color:var(--bl)">📊 Stufe 1→2</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--am)"></div>
+        <div style="flex:1;font-size:8px;font-weight:700;color:var(--am)">Tag 75 — ${Math.round(baseW*1.05)}W (+5.0%)</div>
+        <div style="font-size:9px;font-weight:700;color:var(--am)">🟡 WARNING</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--am)"></div>
+        <div style="flex:1;font-size:8px;color:var(--am)">Tag 80 — RUL: 14 Tage</div>
+        <div style="font-size:9px;font-weight:700;color:var(--am)">🟡 ESCALATION</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--g)"></div>
+        <div style="flex:1;font-size:8px;font-weight:700;color:var(--g)">Tag 83 — Geplante Wartung</div>
+        <div style="font-size:9px;font-weight:700;color:var(--g)">✅ 25 Min</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--g)"></div>
+        <div style="flex:1;font-size:8px;color:var(--g)">Tag 84+ — Weiter produzieren</div>
+        <div style="font-size:9px;font-weight:700;color:var(--g)">💚 NORMAL</div>
+      </div>
+    </div>
+    <div style="margin-top:10px;padding:8px;background:#0a684710;border-radius:8px;font-size:8px;color:var(--g);line-height:1.5;text-align:center">
+      <strong>Vorlaufzeit: 18+ Tage</strong><br>
+      Drift-Progression: 0.7% → 2.1% → 5.0% → geplant<br>
+      Sensor sieht NICHTS — SIREN sieht den Trend seit Tag 65.
+    </div>
+  </div>
+</div>
+
+<div style="padding:12px;background:var(--s2);border-radius:10px;border:1px solid var(--bd);margin-bottom:12px">
+  <div style="font-size:10px;font-weight:700;margin-bottom:8px">🔬 Warum sieht der Sensor nichts?</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+    <div style="padding:10px;background:var(--s);border-radius:8px;border:1px solid var(--bd)">
+      <div style="font-size:16px;text-align:center;margin-bottom:4px">📏</div>
+      <div style="font-size:8px;font-weight:700;text-align:center;margin-bottom:4px">Schwellwert-Logik</div>
+      <div style="font-size:7px;color:var(--td);text-align:center;line-height:1.4">Sensor kennt nur: unter/über Limit. Kein Verlauf, kein Trend, kein Kontext. 1% Drift? Unsichtbar.</div>
+    </div>
+    <div style="padding:10px;background:var(--s);border-radius:8px;border:1px solid var(--bd)">
+      <div style="font-size:16px;text-align:center;margin-bottom:4px">🌡️</div>
+      <div style="font-size:8px;font-weight:700;text-align:center;margin-bottom:4px">Symptom, nicht Ursache</div>
+      <div style="font-size:7px;color:var(--td);text-align:center;line-height:1.4">Vibration ist ein Symptom. Wenn man es fühlt, ist das Lager schon beschädigt. SIREN sieht die Ursache im Strom.</div>
+    </div>
+    <div style="padding:10px;background:var(--s);border-radius:8px;border:1px solid var(--bd)">
+      <div style="font-size:16px;text-align:center;margin-bottom:4px">🔇</div>
+      <div style="font-size:8px;font-weight:700;text-align:center;margin-bottom:4px">Kein Umgebungskontext</div>
+      <div style="font-size:7px;color:var(--td);text-align:center;line-height:1.4">34°C draussen? Sensor weiss nichts davon. SIREN passt Baselines an und unterscheidet Hitze von Defekt.</div>
+    </div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+  <div style="padding:14px;background:#dc262606;border-radius:12px;border:1px solid #dc262618">
+    <div style="font-size:10px;font-weight:800;color:var(--rd);margin-bottom:8px">❌ Sensorik: Kosten</div>
+    <div style="font-size:10px;color:var(--td);line-height:1.6">EUR 800–3.000/Sensor × 4–8 pro Maschine. Installation, Kalibrierung, Wartung, Verkabelung.</div>
+    <div style="margin-top:8px;padding:6px 10px;background:#dc262608;border-radius:6px;font-size:9px;font-family:'JetBrains Mono';color:var(--rd)">8 Maschinen = <strong>EUR 80'000+</strong></div>
+    <div style="margin-top:6px;font-size:8px;color:var(--rd);font-weight:700">+ Kein Drift. + Kein Kontext. + Keine Frühwarnung.</div>
+  </div>
+  <div style="padding:14px;background:#0a684706;border-radius:12px;border:1px solid #0a684718">
+    <div style="font-size:10px;font-weight:800;color:var(--g);margin-bottom:8px">✅ SIREN: Kosten</div>
+    <div style="font-size:10px;color:var(--td);line-height:1.6">CT-Klemmen + Edge Gateway + Gehäuse. Kein Eingriff. Kein Kabel in der Maschine. 20+ Jahre.</div>
+    <div style="margin-top:8px;padding:6px 10px;background:#0a684708;border-radius:6px;font-size:9px;font-family:'JetBrains Mono';color:var(--g)">8 Maschinen = <strong>EUR ${d.hwPerMach*8}</strong></div>
+    <div style="margin-top:6px;font-size:8px;color:var(--g);font-weight:700">+ Drift-Erkennung. + Umgebungskontext. + 18+ Tage Vorlauf.</div>
+  </div>
+</div>
+</div></div>`;
 document.getElementById('v2').innerHTML=h}
 // TAB 3: BUSINESS CASE
 function renderTab3(){const d=DOMAINS[currentDomain],o=getOEM();
